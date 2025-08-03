@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
+import '../widgets/room_selection.dart';
 
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
@@ -13,6 +14,8 @@ class ProgramScreen extends StatefulWidget {
 class _ProgramScreenState extends State<ProgramScreen> {
   //MAP<String Key, Value>?
   Map<String, dynamic>? _apiData;
+  List<dynamic> dayTabs = [];
+  List<dynamic> dayRoomAmounts = [];
 
   @override
   void initState() {
@@ -22,8 +25,6 @@ class _ProgramScreenState extends State<ProgramScreen> {
   }
 
   Future<void> _loadData() async {
-    final data = null;
-
     cachedRequest.readDataOrCached(
       endpoint: 'https://voteptartro.wisehub.pl/api/?action=get-program-flat',
       method: 'GET',
@@ -31,6 +32,19 @@ class _ProgramScreenState extends State<ProgramScreen> {
         if (data != null) {
           setState(() {
             _apiData = data;
+          });
+
+          //checks for each day and then adds it to the array
+          
+          data.forEach((key, value) {
+            
+
+            if (key == 'day0' || key =='day1' || key == 'day2' || key == 'day3') {
+              dayTabs.add(value);
+            }
+            else if (key == "day0rooms" || key == "day1rooms"|| key == "day2rooms" || key == "day3rooms" ){
+              dayRoomAmounts.add(value);
+            }
           });
         }
       },
@@ -73,6 +87,11 @@ class _ProgramScreenState extends State<ProgramScreen> {
         ),
       );
     }
-    return const Text("THIS SHIT HAS LOADED");
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: (Column(children: [
+      ],)),
+    ); // top will have my component with buttons from a seperate compinent
   }
 }
