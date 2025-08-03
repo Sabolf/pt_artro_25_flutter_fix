@@ -24,8 +24,8 @@ class AppDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader( //Display pictures and words
-            decoration: BoxDecoration(color: Colors.blue), // decoration gives more style ability
-            child: Text('Choose Your Option',
+            decoration: BoxDecoration(color: const Color.fromARGB(255, 61, 21, 30)), // decoration gives more style ability
+            child: Text('PT ARTRO 2025',
                 style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile( // simple row with an icon and text
@@ -35,13 +35,13 @@ class AppDrawer extends StatelessWidget {
             onTap: () => onSelectTab(0), //when clicked calls this function with this argument
           ),
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Profile'),
+            leading: Icon(Icons.location_city),
+            title: Text('Location'),
             selected: selectedIndex == 1, // HIGHLIGHTS ROW THAT IS SELECTED
             onTap: () => onSelectTab(1),
           ),
           ListTile(
-            leading: Icon(Icons.person), // 2 is the QR
+            leading: Icon(Icons.tab), // 2 is the QR
             title: Text('Program'),
             selected: selectedIndex == 3, // HIGHLIGHTS ROW THAT IS SELECTED
             onTap: () => onSelectTab(3),

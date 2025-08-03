@@ -15,6 +15,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
   //MAP<String Key, Value>?
   Map<String, dynamic>? _apiData;
   List<dynamic> dayTabs = [];
+  List<Widget> dayTabView = [];
   List<dynamic> dayRoomAmounts = [];
 
   @override
@@ -35,17 +36,91 @@ class _ProgramScreenState extends State<ProgramScreen> {
           });
 
           //checks for each day and then adds it to the array
-          
-          data.forEach((key, value) {
-            
 
-            if (key == 'day0' || key =='day1' || key == 'day2' || key == 'day3') {
+          data.forEach((key, value) {
+            if (key == 'day0' ||
+                key == 'day1' ||
+                key == 'day2' ||
+                key == 'day3') {
               dayTabs.add(value);
-            }
-            else if (key == "day0rooms" || key == "day1rooms"|| key == "day2rooms" || key == "day3rooms" ){
+            } else if (key == "day0rooms" ||
+                key == "day1rooms" ||
+                key == "day2rooms" ||
+                key == "day3rooms") {
               dayRoomAmounts.add(value);
             }
+
+            //-------------------------------------- Make The Day Tabs Dynamically
           });
+          for (var i = 0; i < dayTabs.length; i++) {
+            dayTabView.add(
+              InkWell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: 200,
+                    height: 70,
+                    child: Card(
+                      shadowColor: Colors.red,
+                      child: Center(
+                        child: Text(
+                          "Day: ${i + 1}",
+                          style: TextStyle(fontSize: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                onTap: () {},
+              ),
+            );
+          }
+          dayTabView.add(
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: 200,
+                  height: 70,
+                  child: Card(
+                    shadowColor: Colors.red,
+                    child: Center(
+                      child: Text(
+                        "Favorites",
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {},
+            ),
+          );
+
+          dayTabView.add(
+            InkWell(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: 200,
+                  height: 70,
+                  child: Card(
+                    shadowColor: Colors.red,
+                    child: Center(
+                      child: Text(
+                        "Sponsors",
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {},
+            ),
+          );
         }
       },
     );
@@ -90,8 +165,12 @@ class _ProgramScreenState extends State<ProgramScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: (Column(children: [
-      ],)),
+      child: Center(
+        child: Column(
+          children: dayTabView,
+          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+      ),
     ); // top will have my component with buttons from a seperate compinent
   }
 }

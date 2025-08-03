@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       title:
           'Drawer Navigation Demo', // App title shown in Android task switcher
       theme: ThemeData(
-        primarySwatch: Colors.blue, // Sets the primary color scheme
+        primarySwatch: Colors.red, // Sets the primary color scheme
       ),
       home:
           MainScreen(), // This is the screen that loads first when the app starts
