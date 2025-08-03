@@ -7,6 +7,7 @@ import 'screens/profile_screen.dart';
 // Import the drawer widget used for navigation
 import 'widgets/app_drawer.dart';
 import 'screens/qr_screen.dart';
+import 'screens/program_screen.dart';
 
 /// ---
 /// ENTRY POINT OF THE APP
@@ -58,11 +59,12 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(), // 0
     ProfileScreen(), // 1
     QrScreen(), // 2
+    ProgramScreen() // 3
     
   ];
 
   // Titles that match each screen — shown in AppBar
-  final List<String> _titles = ['Home', 'Profile', 'QR CODE'];
+  final List<String> _titles = ['Home', 'Profile', 'QR CODE', 'Program'];
 
   // Called when a tab in the drawer is tapped
   void _selectTab(int index, {bool fromDrawer = true}) {

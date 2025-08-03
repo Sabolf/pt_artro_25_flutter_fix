@@ -40,6 +40,12 @@ class AppDrawer extends StatelessWidget {
             selected: selectedIndex == 1, // HIGHLIGHTS ROW THAT IS SELECTED
             onTap: () => onSelectTab(1),
           ),
+          ListTile(
+            leading: Icon(Icons.person), // 2 is the QR
+            title: Text('Program'),
+            selected: selectedIndex == 3, // HIGHLIGHTS ROW THAT IS SELECTED
+            onTap: () => onSelectTab(3),
+          ),
           
         ],
       ),
