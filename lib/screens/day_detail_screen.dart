@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/room_selection.dart';
 
 class DayDetailScreen extends StatefulWidget {
   const DayDetailScreen({super.key});
@@ -11,7 +12,8 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return (Scaffold(
-      body: Text("THIS IS SOME DETAIL"),
+      appBar: AppBar(title: Text("DAY DETAILS")),
+      body: Column(children: [RoomSelection(numberOfButtons: 4)]),
     ));
   }
 }
