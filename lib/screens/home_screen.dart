@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pt_25_artro_test/cached_request.dart';
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
 

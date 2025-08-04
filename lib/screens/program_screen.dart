@@ -134,6 +134,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
     // }
   }
 
+  @override
   Widget build(BuildContext context) {
     if (_apiData == null) {
       return Scaffold(
@@ -168,8 +169,8 @@ class _ProgramScreenState extends State<ProgramScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Center(
         child: Column(
-          children: dayTabView,
           mainAxisAlignment: MainAxisAlignment.center,
+          children: dayTabView,
         ),
       ),
     ); // top will have my component with buttons from a seperate compinent
