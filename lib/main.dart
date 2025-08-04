@@ -61,11 +61,10 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(), // 1
     QrScreen(), // 2
     ProgramScreen(), // 3
-    DayDetailScreen()
   ];
 
   // Titles that match each screen — shown in AppBar
-  final List<String> _titles = ['Home', 'Profile', 'QR CODE', 'Program', 'Program Details'];
+  final List<String> _titles = ['Home', 'Profile', 'QR CODE', 'Program'];
 
   // Called when a tab in the drawer is tapped
   void _selectTab(int index, {bool fromDrawer = true}) {

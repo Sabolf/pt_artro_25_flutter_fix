@@ -49,7 +49,7 @@ class _RoomSelectionState extends State<RoomSelection> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
 
-              child: Center(child: Text('Room ${index + 1}')),
+              child: Center(child: Text('Room ${index + 1}', textAlign: TextAlign.center,)),
             ),
           ),
         ),
@@ -73,7 +73,7 @@ class _RoomSelectionState extends State<RoomSelection> {
             ),
             child: const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Center(child: Text("All")),
+              child: Center(child: Text("All", textAlign: TextAlign.center,)),
             ),
           ),
         ),

@@ -73,7 +73,12 @@ class _ProgramScreenState extends State<ProgramScreen> {
                     ),
                   ),
                 ),
-                onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => DayDetailScreen()));},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DayDetailScreen(dayRoomAmount: dayRoomAmounts[i])),
+                  );
+                },
               ),
             );
           }
