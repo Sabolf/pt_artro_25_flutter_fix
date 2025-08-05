@@ -76,7 +76,12 @@ class _ProgramScreenState extends State<ProgramScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DayDetailScreen(dayRoomAmount: dayRoomAmounts[i])),
+                    MaterialPageRoute(
+                      builder: (context) => DayDetailScreen(
+                        dayRoomAmount: dayRoomAmounts[i],
+                        dayInformation: dayTabs[i],
+                      ),
+                    ),
                   );
                 },
               ),
@@ -176,6 +181,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: dayTabView,
+          
         ),
       ),
     ); // top will have my component with buttons from a seperate compinent
