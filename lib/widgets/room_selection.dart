@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class RoomSelection extends StatefulWidget {
   final int numberOfButtons;
-
-  // Simple callback function type: nullable, takes int, returns void
   final void Function(int)? onRoomSelected;
+  final PageController? pageController;
 
   const RoomSelection({
     super.key,
     required this.numberOfButtons,
     this.onRoomSelected,
+    this.pageController,
   });
 
   @override
@@ -19,19 +19,47 @@ class RoomSelection extends StatefulWidget {
 class _RoomSelectionState extends State<RoomSelection> {
   int _selectedIndex = 0;
 
-
   @override
   void initState() {
     super.initState();
-    widget.onRoomSelected?.call(_selectedIndex);
+    // Listen to the PageController's page changes
+    widget.pageController?.addListener(_onPageChanged);
+    
+    // Call the initial room selection
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onTabTapped(_selectedIndex);
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.pageController?.removeListener(_onPageChanged);
+    super.dispose();
+  }
+
+  void _onPageChanged() {
+    // This is important to ensure the PageController's position is a valid integer.
+    // Sometimes it can be a double during the swipe animation.
+    if (widget.pageController != null && widget.pageController!.page != null) {
+      final newIndex = widget.pageController!.page!.round();
+      if (_selectedIndex != newIndex) {
+        setState(() {
+          _selectedIndex = newIndex;
+        });
+      }
+    }
   }
 
   void _onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    // Only setState if the index has actually changed
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
 
-    // Call the callback if provided
+    // Call the callback if provided. This will be used by DayDetailScreen
+    // to navigate the PageView.
     widget.onRoomSelected?.call(index);
   }
 

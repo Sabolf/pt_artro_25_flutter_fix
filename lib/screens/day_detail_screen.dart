@@ -17,12 +17,18 @@ class DayDetailScreen extends StatefulWidget {
 }
 
 class _DayDetailScreenState extends State<DayDetailScreen> {
-  List<Widget> visibleSession = [];
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
-    print("\n\n\n\n\n\n\n---------------------- LOAD SCREEN ----------------------------\n");
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   void getRoominfo(int room) {
@@ -88,9 +94,70 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
         .map((sessionGroup) => SessionContainer(sessionContainer: sessionGroup))
         .toList();
 
-    setState(() {
-      visibleSession = tmpVisibleDetailComponent;
-    });
+    // The logic to update visibleSession is now handled by the PageView.
+    // Instead of setting state, we return the list of widgets.
+    // This method can now be used to build the content for each page.
+    // We will restructure this logic slightly to make it work with PageView.
+  }
+
+  List<Widget> _buildRoomContent(int roomIndex) {
+    String roomToLookFor = "";
+
+    if (roomIndex < widget.dayRoomAmount.length - 1) {
+      switch (roomIndex) {
+        case 0:
+          roomToLookFor = "SALA S1";
+          break;
+        case 1:
+          roomToLookFor = "SALA S2";
+          break;
+        case 2:
+          roomToLookFor = "SALA S3";
+          break;
+        case 3:
+          roomToLookFor = "SALA S4";
+          break;
+        case 4:
+          roomToLookFor = "SALA S5";
+          break;
+        case 5:
+          roomToLookFor = "SALA S6";
+          break;
+        default:
+          roomToLookFor = "NO ROOM FOUND";
+      }
+    } else {
+      roomToLookFor = "ALL";
+    }
+
+    List<dynamic> tmpSessionContainer = [];
+    List<List<dynamic>> arrayOfSessionContainers = [];
+
+    for (int i = 0; i < widget.dayInformation.length; i++) {
+      if (widget.dayInformation[i]["place_pl"] == roomToLookFor) {
+        bool nextIsContainer = false;
+
+        if (i + 1 < widget.dayInformation.length) {
+          nextIsContainer = widget.dayInformation[i + 1]["is_session_container"] == 1;
+        }
+
+        tmpSessionContainer.add(widget.dayInformation[i]);
+
+        if (nextIsContainer) {
+          arrayOfSessionContainers.add(tmpSessionContainer);
+          tmpSessionContainer = [];
+        }
+
+        if (i + 1 >= widget.dayInformation.length && tmpSessionContainer.isNotEmpty) {
+          arrayOfSessionContainers.add(tmpSessionContainer);
+          tmpSessionContainer = [];
+        }
+      }
+    }
+
+    return arrayOfSessionContainers
+        .map((sessionGroup) => SessionContainer(sessionContainer: sessionGroup))
+        .toList();
   }
 
   @override
@@ -101,14 +168,29 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
         children: [
           RoomSelection(
             numberOfButtons: widget.dayRoomAmount.length - 1,
-            onRoomSelected: (x) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                getRoominfo(x);
-              });
+            onRoomSelected: (roomIndex) {
+              _pageController.animateToPage(
+                roomIndex,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeIn,
+              );
             },
+            pageController: _pageController,
           ),
           Expanded(
-            child: ListView(children: visibleSession),
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.dayRoomAmount.length,
+              onPageChanged: (index) {
+                // We'll update the RoomSelection state via a callback
+                // This will be handled by a change in RoomSelection itself.
+                // We don't need a setState here.
+              },
+              itemBuilder: (context, index) {
+                final visibleSession = _buildRoomContent(index);
+                return ListView(children: visibleSession);
+              },
+            ),
           ),
         ],
       ),
