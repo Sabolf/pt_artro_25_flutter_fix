@@ -9,6 +9,7 @@ import 'widgets/app_drawer.dart';
 import 'screens/qr_screen.dart';
 import 'screens/program_screen.dart';
 import 'screens/day_detail_screen.dart';
+import 'screens/speakers_screen.dart';
 
 /// ---
 /// ENTRY POINT OF THE APP
@@ -61,10 +62,11 @@ class _MainScreenState extends State<MainScreen> {
     LocationScreen(), // 1
     QrScreen(), // 2
     ProgramScreen(), // 3
+    SpeakersListScreen() 
   ];
 
   // Titles that match each screen — shown in AppBar
-  final List<String> _titles = ['Home', 'Location', 'QR CODE', 'Program'];
+  final List<String> _titles = ['Home', 'Location', 'QR CODE', 'Program', 'Speakers'];
 
   // Called when a tab in the drawer is tapped
   void _selectTab(int index, {bool fromDrawer = true}) {
