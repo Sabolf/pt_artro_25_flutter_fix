@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 // Import custom screens (widgets for each tab)
 import 'screens/home_screen.dart';
-import 'screens/profile_screen.dart';
+import 'screens/location_screen.dart';
 // Import the drawer widget used for navigation
 import 'widgets/app_drawer.dart';
 import 'screens/qr_screen.dart';
@@ -58,13 +58,13 @@ class _MainScreenState extends State<MainScreen> {
   // List of widgets that represent each screen
   final List<Widget> _screens = [
     HomeScreen(), // 0
-    ProfileScreen(), // 1
+    LocationScreen(), // 1
     QrScreen(), // 2
     ProgramScreen(), // 3
   ];
 
   // Titles that match each screen — shown in AppBar
-  final List<String> _titles = ['Home', 'Profile', 'QR CODE', 'Program'];
+  final List<String> _titles = ['Home', 'Location', 'QR CODE', 'Program'];
 
   // Called when a tab in the drawer is tapped
   void _selectTab(int index, {bool fromDrawer = true}) {

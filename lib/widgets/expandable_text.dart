@@ -19,16 +19,30 @@ class _CustomExpandableTextState extends State<CustomExpandableText> {
 
   @override
   Widget build(BuildContext context) {
+    const Color toggleColor = Color.fromARGB(255, 136, 19, 60); // Primary pink
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.leadPart + (_expanded ? widget.extendedPart : "")),
+        Text(
+          widget.leadPart + (_expanded ? widget.extendedPart : ""),
+          style: const TextStyle(fontSize: 14),
+          textAlign: TextAlign.justify,
+        ),
         TextButton(
           onPressed: () {
             setState(() {
               _expanded = !_expanded;
             });
           },
-          child: Text(_expanded ? 'Show Less' : 'Show More'),
+          child: Text(
+            _expanded ? 'Show Less' : 'Show More',
+            style: const TextStyle(
+              color: toggleColor,
+              fontWeight: FontWeight.w500,
+              
+            ),
+          ),
         ),
       ],
     );
