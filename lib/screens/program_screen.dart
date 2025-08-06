@@ -180,7 +180,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: dayTabView,
+          children: dayTabView ,
           
         ),
       ),

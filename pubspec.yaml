@@ -38,6 +38,7 @@ dependencies:
   mobile_scanner: ^3.0.0
   url_launcher: ^6.2.1
   photo_view: ^0.14.0
+  html_unescape: ^2.0.0
   
 
   # The following adds the Cupertino Icons font to your application.
