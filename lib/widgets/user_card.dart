@@ -4,6 +4,7 @@ class UserCard extends StatelessWidget {
   final String name;
   final String imagePathWay;
   final String subTitle;
+  final String symbol;
   final void Function(String)? onTap;
 
   const UserCard({
@@ -11,6 +12,7 @@ class UserCard extends StatelessWidget {
     required this.name,
     required this.imagePathWay,
     required this.subTitle,
+    required this.symbol,
     this.onTap,
   });
 
@@ -19,7 +21,7 @@ class UserCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (onTap != null) {
-          onTap!(name);
+          onTap!(symbol);
         }
       },
       child: Padding(
