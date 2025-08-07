@@ -28,7 +28,7 @@ class UserCard extends StatelessWidget {
             radius: 30,
           ),
           title: Text(wholeObject['name']??"N/A"),
-          subtitle: Text(wholeObject['prefixPl']?? ""),
+          subtitle: Text(wholeObject['prefixPl']?? "N/A"),
           shape: Border.all(),
         ),
       ),

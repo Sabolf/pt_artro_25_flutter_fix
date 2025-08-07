@@ -107,9 +107,8 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
                 imagePathWay: '',
                 wholeObject: speaker,
                 onTap: (x) {
-                  print("CALL BACK FROM: $x");
-                  print(x['name']);
-                  print(x['id']);
+                    print("Pulling info from ${x['name']}");
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PersonDetailScreen(speaker: speaker,)));
                 },
               );
             },

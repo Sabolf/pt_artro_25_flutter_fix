@@ -58,7 +58,7 @@ class SessionContainer extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Container(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.center,
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: timeBgColor,

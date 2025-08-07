@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
+import 'person_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -117,30 +118,49 @@ class _HomeScreenState extends State<HomeScreen> {
               wholeObject: congressChairmen[0],
               imagePathWay: 'assets/images/paw_sko.jpeg',
               onTap: (x) {
-                print("CALL BACK FROM: $x");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[0]),
+                  ),
+                );
               },
             ),
             UserCard(
               wholeObject: congressChairmen[1],
               imagePathWay: 'assets/images/rom_brz.png',
               onTap: (x) {
-                print("CALL BACK FROM: $x");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[1]),
+                  ),
+                );
               },
             ),
             UserCard(
               wholeObject: congressChairmen[2],
               imagePathWay: 'assets/images/tom_par.jpg',
               onTap: (x) {
-                print("CALL BACK FROM: $x");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[2]),
+                  ),
+                );
               },
             ),
             UserCard(
               wholeObject: congressChairmen[3],
               imagePathWay: 'assets/images/mac_bia.png',
               onTap: (x) {
-                  print(x['name']);
-                  print(x['id']);
-                },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[3]),
+                  ),
+                );
+              },
             ),
           ],
         ),
