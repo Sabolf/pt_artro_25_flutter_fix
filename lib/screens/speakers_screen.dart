@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-
 import '../widgets/user_card.dart';
+import '../screens/person_detail_screen.dart';
 
 class SpeakersListScreen extends StatefulWidget {
   const SpeakersListScreen({super.key});
@@ -68,7 +68,7 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
     if (allSpeakers.isEmpty) {
       return const Center(child: Text("No speakers found."));
     }
-    
+
     return Column(
       children: [
         Padding(
@@ -86,17 +86,11 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(25.0)),
-                  borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 2.0,
-                  ),
+                  borderSide: BorderSide(color: Colors.black, width: 2.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: const BorderRadius.all(Radius.circular(25.0)),
-                  borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 2.0,
-                  ),
+                  borderSide: BorderSide(color: Colors.black, width: 2.0),
                 ),
               ),
             ),
@@ -104,15 +98,19 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: filteredSpeakers.length, // Use the filtered list for the count
+            itemCount:
+                filteredSpeakers.length, // Use the filtered list for the count
             itemBuilder: (context, index) {
-              final speaker = filteredSpeakers[index]; // Use the filtered list for the item
+              final speaker =
+                  filteredSpeakers[index]; // Use the filtered list for the item
               return UserCard(
-                name: speaker['name'],
                 imagePathWay: '',
-                subTitle: speaker['prefixEn'] ?? "",
-                symbol: speaker['id'],
-                onTap: (x){print("CALL BACK FROM: $x");},
+                wholeObject: speaker,
+                onTap: (x) {
+                  print("CALL BACK FROM: $x");
+                  print(x['name']);
+                  print(x['id']);
+                },
               );
             },
           ),

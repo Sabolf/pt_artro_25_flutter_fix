@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 
 class UserCard extends StatelessWidget {
-  final String name;
   final String imagePathWay;
-  final String subTitle;
-  final String symbol;
-  final void Function(String)? onTap;
+  final dynamic wholeObject;
+  final void Function(dynamic)? onTap;
 
   const UserCard({
     super.key,
-    required this.name,
     required this.imagePathWay,
-    required this.subTitle,
-    required this.symbol,
+    this.wholeObject,
     this.onTap,
   });
 
@@ -21,7 +17,7 @@ class UserCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (onTap != null) {
-          onTap!(symbol);
+          onTap!(wholeObject);
         }
       },
       child: Padding(
@@ -31,8 +27,8 @@ class UserCard extends StatelessWidget {
             backgroundImage: AssetImage(imagePathWay),
             radius: 30,
           ),
-          title: Text(name),
-          subtitle: Text(subTitle),
+          title: Text(wholeObject['name']??"N/A"),
+          subtitle: Text(wholeObject['prefixPl']?? ""),
           shape: Border.all(),
         ),
       ),
