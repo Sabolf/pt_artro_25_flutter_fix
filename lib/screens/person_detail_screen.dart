@@ -1,66 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:pt_25_artro_test/widgets/image_finder.dart';
 
-class PersonDetailScreen extends StatelessWidget {
+class PersonDetailScreen extends StatefulWidget {
   final dynamic speaker;
-
   const PersonDetailScreen({super.key, required this.speaker});
 
   @override
-  Widget build(BuildContext context) {
-    // Define a new, brighter color palette for light mode
-    const backgroundColor = Color(0xFFF0F2F5); // A very light gray
-    const cardColor = Colors.white; 
-    const accentColor = Color(0xFFE4287C); // The original vibrant pink
-    const primaryTextColor = Color(0xFF1F1F1F); // A dark gray for main text
-    const secondaryTextColor = Color(0xFF6B6B7C); // A medium gray for secondary text
+  State<PersonDetailScreen> createState() => _PersonDetailScreenState();
+}
 
-    // Widget to display an info row with an icon, label, and value
-    Widget infoRow(IconData icon, String label, String? value) {
-      if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
+class _PersonDetailScreenState extends State<PersonDetailScreen> {
+  String avatarUrl = "";
 
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(icon, color: accentColor, size: 20),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: secondaryTextColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: primaryTextColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+  @override
+  void initState() {
+    super.initState();
+    _findImage();
+  }
+
+  Future<void> _findImage() async {
+    final ImgPathWay = await findImagePathById(widget.speaker['id']);
+    if (ImgPathWay != null) {
+      setState(() {
+        avatarUrl = ImgPathWay;
+        print("Found image path: $avatarUrl");
+      });
     }
+  }
 
-    final String? avatarUrl = speaker['avatarUrl'];
+  // Color palette for light mode
+  static const backgroundColor = Color(0xFFF0F2F5);
+  static const cardColor = Colors.white;
+  static const accentColor = Color(0xFFE4287C);
+  static const primaryTextColor = Color(0xFF1F1F1F);
+  static const secondaryTextColor = Color(0xFF6B6B7C);
 
+  // Widget to display an info row with an icon, label, and value
+  Widget infoRow(IconData icon, String label, String? value) {
+    if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: accentColor, size: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: secondaryTextColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: primaryTextColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: cardColor, // AppBar is now white
-        elevation: 1, // Add a slight elevation for a subtle shadow
+        backgroundColor: cardColor,
+        elevation: 1,
         title: const Text(
           "Speaker Details",
           style: TextStyle(color: primaryTextColor),
@@ -73,7 +94,7 @@ class PersonDetailScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Avatar with a glowing border (still looks good in light mode)
+              // Avatar with glowing border and loading indicator
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -84,35 +105,49 @@ class PersonDetailScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: accentColor.withOpacity(0.3), // A softer glow
+                          color: accentColor.withOpacity(0.3),
                           blurRadius: 15,
                           spreadRadius: 2,
                         ),
                       ],
                     ),
                   ),
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: backgroundColor,
-                    backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
-                        ? NetworkImage(avatarUrl)
-                        : null,
-                    child: avatarUrl == null || avatarUrl.isEmpty
-                        ? Icon(
-                            Icons.person,
-                            size: 60,
-                            color: secondaryTextColor,
-                          )
-                        : null,
+                  SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: ClipOval(
+                      child: avatarUrl.isEmpty
+                          ? const Center(child: CircularProgressIndicator())
+                          : Image.asset(
+                              avatarUrl,
+                              fit: BoxFit.cover,
+                              width: 120,
+                              height: 120,
+                              frameBuilder: (BuildContext context, Widget child,
+                                  int? frame, bool wasSynchronouslyLoaded) {
+                                if (wasSynchronouslyLoaded) return child;
+                                if (frame == null) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+                                return child;
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                    child: Icon(Icons.person,
+                                        size: 60, color: Colors.grey));
+                              },
+                            ),
+                    ),
                   ),
                 ],
               ),
 
               const SizedBox(height: 24),
 
-              // Name and title section
+              // Name and title
               Text(
-                "${speaker['name'] ?? ''} ${speaker['lname'] ?? ''}".trim(),
+                "${widget.speaker['name'] ?? ''} ".trim(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 26,
@@ -120,15 +155,16 @@ class PersonDetailScreen extends StatelessWidget {
                   color: primaryTextColor,
                 ),
               ),
-              if (speaker['titleEn'] != null && speaker['titleEn'].toString().trim().isNotEmpty)
+              if (widget.speaker['titleEn'] != null &&
+                  widget.speaker['titleEn'].toString().trim().isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    speaker['titleEn'],
+                    widget.speaker['titleEn'],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      color: accentColor, 
+                      color: accentColor,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -154,11 +190,14 @@ class PersonDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    infoRow(Icons.work_outline, "Workplace", speaker['workplace']),
-                    infoRow(Icons.location_on_outlined, "Location",
-                        "${speaker['city'] ?? ''}${(speaker['city'] != null && speaker['countryEn'] != null) ? ', ' : ''}${speaker['countryEn'] ?? ''}"),
-                    infoRow(Icons.group_outlined, "Memberships", speaker['member']),
-                    infoRow(Icons.map_outlined, "Zones", speaker['zones']),
+                    infoRow(Icons.work_outline, "Workplace", widget.speaker['workplace']),
+                    infoRow(
+                      Icons.location_on_outlined,
+                      "Location",
+                      "${widget.speaker['city'] ?? ''}${(widget.speaker['city'] != null && widget.speaker['countryEn'] != null) ? ', ' : ''}${widget.speaker['countryEn'] ?? ''}",
+                    ),
+                    infoRow(Icons.group_outlined, "Memberships", widget.speaker['member']),
+                    infoRow(Icons.map_outlined, "Zones", widget.speaker['zones']),
                   ],
                 ),
               ),
@@ -185,7 +224,7 @@ class PersonDetailScreen extends StatelessWidget {
                   children: [
                     Text(
                       "Biography",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: accentColor,
@@ -193,7 +232,7 @@ class PersonDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      (speaker['bioEn'] ?? '').replaceAll('[n]', '\n'),
+                      (widget.speaker['bioEn'] ?? '').replaceAll('[n]', '\n'),
                       style: const TextStyle(
                         color: secondaryTextColor,
                         fontSize: 15,

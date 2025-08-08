@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:pt_25_artro_test/widgets/user_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:convert';
+import '../widgets/user_card.dart';
+import '../screens/person_detail_screen.dart';
 
-class SessionContainer extends StatelessWidget {
+class SessionContainer extends StatefulWidget {
   final List<dynamic> sessionContainer;
   final Function(List<dynamic>)? onSpeakerTap;
   final Color? backgroundColor;
@@ -16,14 +22,46 @@ class SessionContainer extends StatelessWidget {
   });
 
   @override
+  State<SessionContainer> createState() => _SessionContainerState();
+}
+
+class _SessionContainerState extends State<SessionContainer> {
+  List<dynamic> allSpeakers = [];
+  bool isLoading = true; // Use a boolean to manage loading state
+
+  @override
+  void initState() {
+    super.initState();
+    loadPeopleJson();
+  }
+
+  Future<void> loadPeopleJson() async {
+    try {
+      final String peopleString = await rootBundle.loadString(
+        'assets/data/people.json',
+      );
+      final List<dynamic> peopleJson = jsonDecode(peopleString);
+      setState(() {
+        allSpeakers = peopleJson;
+        isLoading = false;
+      });
+    } catch (e) {
+      // Handle the error if the file can't be loaded
+      print("Error loading JSON: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   Widget build(BuildContext context) {
-    if (sessionContainer.isEmpty) return const SizedBox();
+    if (widget.sessionContainer.isEmpty) return const SizedBox();
 
     final unescape = HtmlUnescape();
 
     return Card(
       margin: const EdgeInsets.all(10),
-      color: backgroundColor ?? Colors.white,
+      color: widget.backgroundColor ?? Colors.white,
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: Color(0xFFE82166), width: 1),
         borderRadius: BorderRadius.circular(10),
@@ -32,10 +70,15 @@ class SessionContainer extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            _buildSessionItem(context, sessionContainer[0], isFirst: true, unescape: unescape),
-            if (sessionContainer.length > 1)
+            _buildSessionItem(
+              context,
+              widget.sessionContainer[0],
+              isFirst: true,
+              unescape: unescape,
+            ),
+            if (widget.sessionContainer.length > 1)
               const Divider(color: Colors.grey, height: 20),
-            ...sessionContainer.sublist(1).map((item) {
+            ...widget.sessionContainer.sublist(1).map((item) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: _buildSessionItem(context, item, unescape: unescape),
@@ -47,7 +90,12 @@ class SessionContainer extends StatelessWidget {
     );
   }
 
-  Widget _buildSessionItem(BuildContext context, dynamic item, {bool isFirst = false, required HtmlUnescape unescape}) {
+  Widget _buildSessionItem(
+    BuildContext context,
+    dynamic item, {
+    bool isFirst = false,
+    required HtmlUnescape unescape,
+  }) {
     final timeBgColor = !isFirst ? Colors.grey.shade200 : Colors.grey.shade700;
     final titleBgColor = !isFirst ? Colors.white : Colors.grey.shade300;
 
@@ -93,7 +141,12 @@ class SessionContainer extends StatelessWidget {
                           context: context,
                           builder: (_) => AlertDialog(
                             title: const Text('Description'),
-                            content: Text(unescape.convert(item['short_description_pl'] ?? 'No description')),
+                            content: Text(
+                              unescape.convert(
+                                item['short_description_pl'] ??
+                                    'No description',
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 child: const Text("OK"),
@@ -105,7 +158,9 @@ class SessionContainer extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      unescape.convert(item["title_pl"] ?? item["title_en"] ?? ""),
+                      unescape.convert(
+                        item["title_pl"] ?? item["title_en"] ?? "",
+                      ),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -113,7 +168,9 @@ class SessionContainer extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
-                        item['place_pl'] != "" ? item['place_pl'] : 'OPEN STAGE',
+                        item['place_pl'] != ""
+                            ? item['place_pl']
+                            : 'OPEN STAGE',
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 12,
@@ -125,8 +182,8 @@ class SessionContainer extends StatelessWidget {
                       item["speakers"].isNotEmpty)
                     GestureDetector(
                       onTap: () {
-                        if (onSpeakerTap != null) {
-                          onSpeakerTap!(item["speakers"]);
+                        if (widget.onSpeakerTap != null) {
+                          widget.onSpeakerTap!(item["speakers"]);
                         }
                       },
                       child: Padding(
@@ -135,10 +192,87 @@ class SessionContainer extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: List<Widget>.from(
                             item["speakers"].map<Widget>((speaker) {
-                              return Text(
-                                speaker["name"] ?? "*****************************************",
-                                style: const TextStyle(
-                                  decoration: TextDecoration.underline,
+                              return InkWell(
+                                onTap: () {
+                                  dynamic tmpPerson;
+
+                                  for (var person in allSpeakers) {
+                                    if (person['id'] == speaker['symbol']) {
+                                      tmpPerson = person;
+                                    }
+                                  }
+
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      bool isFavorite =
+                                          false; // Local state for the dialog
+
+                                      return StatefulBuilder(
+                                        builder: (context, setState) {
+                                          return AlertDialog(
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                // Speaker name
+                                                Expanded(
+                                                  child: Text(
+                                                    speaker['name'] ??
+                                                        'Unknown Speaker',
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+
+                                                // Star toggle
+                                                IconButton(
+                                                  icon: Icon(
+                                                    isFavorite
+                                                        ? Icons.star
+                                                        : Icons.star_border,
+                                                    color: isFavorite
+                                                        ? Colors.amber
+                                                        : Colors.grey,
+                                                  ),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isFavorite = !isFavorite;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            content: UserCard(
+                                              wholeObject: tmpPerson,
+                                              onTap: (x) {
+                                                print(
+                                                  "Pulling info from ${x['name']}",
+                                                );
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        PersonDetailScreen(
+                                                          speaker: tmpPerson,
+                                                        ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  speaker["name"] ??
+                                      "*****************************************",
+                                  style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               );
                             }),
