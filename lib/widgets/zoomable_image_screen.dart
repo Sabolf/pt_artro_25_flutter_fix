@@ -101,7 +101,7 @@ class ZoomableImageScreen extends StatelessWidget {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ],

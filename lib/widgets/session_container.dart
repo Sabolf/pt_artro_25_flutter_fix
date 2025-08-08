@@ -40,7 +40,7 @@ class SessionContainer extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: _buildSessionItem(context, item, unescape: unescape),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

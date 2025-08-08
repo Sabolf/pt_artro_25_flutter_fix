@@ -104,11 +104,16 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
               final speaker =
                   filteredSpeakers[index]; // Use the filtered list for the item
               return UserCard(
-                imagePathWay: '',
                 wholeObject: speaker,
                 onTap: (x) {
-                    print("Pulling info from ${x['name']}");
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PersonDetailScreen(speaker: speaker,)));
+                  print("Pulling info from ${x['name']}");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PersonDetailScreen(speaker: speaker),
+                    ),
+                  );
                 },
               );
             },

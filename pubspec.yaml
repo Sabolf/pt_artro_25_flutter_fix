@@ -39,6 +39,7 @@ dependencies:
   url_launcher: ^6.2.1
   photo_view: ^0.14.0
   html_unescape: ^2.0.0
+  path: ^1.8.1  
   
 
   # The following adds the Cupertino Icons font to your application.
@@ -70,6 +71,9 @@ flutter:
   assets:
     - assets/images/ # <--- ADD THIS LINE AND ENSURE INDENTATION
     - assets/data/
+    - assets/images/people/
+    - assets/image_paths.json
+
     # You can also include an entire folder like this:
     # - assets/
     # If you have other images, you'd list them here as well:

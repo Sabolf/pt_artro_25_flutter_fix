@@ -116,7 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             UserCard(
               wholeObject: congressChairmen[0],
-              imagePathWay: 'assets/images/paw_sko.jpeg',
               onTap: (x) {
                 Navigator.push(
                   context,
@@ -128,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             UserCard(
               wholeObject: congressChairmen[1],
-              imagePathWay: 'assets/images/rom_brz.png',
               onTap: (x) {
                 Navigator.push(
                   context,
@@ -140,7 +138,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             UserCard(
               wholeObject: congressChairmen[2],
-              imagePathWay: 'assets/images/tom_par.jpg',
               onTap: (x) {
                 Navigator.push(
                   context,
@@ -152,7 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             UserCard(
               wholeObject: congressChairmen[3],
-              imagePathWay: 'assets/images/mac_bia.png',
               onTap: (x) {
                 Navigator.push(
                   context,

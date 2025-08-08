@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
-import '../widgets/expandable_text.dart';
-import '../widgets/user_card.dart';
-import '../widgets/room_selection.dart';
 
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
