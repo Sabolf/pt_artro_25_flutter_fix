@@ -115,6 +115,22 @@ class AppDrawer extends StatelessWidget {
             selectedTileColor: activeColor.withOpacity(0.1),
             onTap: () => onSelectTab(4),
           ),
+          ListTile(
+            leading: Icon(
+              Icons.wallet,
+              color: selectedIndex == 5 ? activeColor : inactiveColor,
+            ),
+            title: Text(
+              'Sponsors',
+              style: TextStyle(
+                color: selectedIndex == 5 ? activeColor : inactiveColor,
+                fontWeight: selectedIndex == 5 ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            selected: selectedIndex == 5,
+            selectedTileColor: activeColor.withOpacity(0.1),
+            onTap: () => onSelectTab(5),
+          ),
       
         ],
       ),

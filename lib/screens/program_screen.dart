@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
 import 'favorite_screen.dart';
+import 'sponsors_screen.dart';
 
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
@@ -104,10 +105,12 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   ),
                 ),
               ),
-              onTap: () {Navigator.push(
-  context,
-  MaterialPageRoute(builder: (_) => const FavoritesScreen()),
-);},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+                );
+              },
             ),
           );
 
@@ -130,7 +133,12 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   ),
                 ),
               ),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SponsorsScreen()),
+                );
+              },
             ),
           );
         }
@@ -181,8 +189,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: dayTabView ,
-          
+          children: dayTabView,
         ),
       ),
     ); // top will have my component with buttons from a seperate compinent

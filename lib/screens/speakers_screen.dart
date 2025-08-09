@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
 
@@ -12,30 +14,30 @@ class SpeakersListScreen extends StatefulWidget {
 }
 
 class _SpeakersListScreenState extends State<SpeakersListScreen> {
-  // Initialize lists to empty to avoid LateInitializationError
   List<dynamic> allSpeakers = [];
   List<dynamic> filteredSpeakers = [];
-  bool isLoading = true; // Use a boolean to manage loading state
+  bool isLoading = true;
+
+  // Store full favorite speaker objects here
+  List<Map<String, dynamic>> favoriteSpeakers = [];
 
   @override
   void initState() {
     super.initState();
     loadPeopleJson();
+    loadFavorites();
   }
 
   Future<void> loadPeopleJson() async {
     try {
-      final String peopleString = await rootBundle.loadString(
-        'assets/data/people.json',
-      );
+      final String peopleString = await rootBundle.loadString('assets/data/people.json');
       final List<dynamic> peopleJson = jsonDecode(peopleString);
       setState(() {
         allSpeakers = peopleJson;
-        filteredSpeakers = peopleJson; // Initialize filtered list as well
+        filteredSpeakers = peopleJson;
         isLoading = false;
       });
     } catch (e) {
-      // Handle the error if the file can't be loaded
       print("Error loading JSON: $e");
       setState(() {
         isLoading = false;
@@ -43,19 +45,64 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
     }
   }
 
-  // This method handles the search logic
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
+
+    try {
+      final List<dynamic> favListDecoded = jsonDecode(favListString);
+      setState(() {
+        favoriteSpeakers = favListDecoded.cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      print("Error decoding favorites: $e");
+      setState(() {
+        favoriteSpeakers = [];
+      });
+    }
+  }
+
   void filterSpeakers(String query) {
     setState(() {
       if (query.isEmpty) {
         filteredSpeakers = allSpeakers;
       } else {
         filteredSpeakers = allSpeakers.where((speaker) {
-          final nameLower = speaker['name']?.toLowerCase() ?? '';
+          final nameLower = speaker['name']?.toString().toLowerCase() ?? '';
           final queryLower = query.toLowerCase();
           return nameLower.contains(queryLower);
         }).toList();
       }
     });
+  }
+
+  bool isFavorite(String speakerId) {
+    return favoriteSpeakers.any((s) => s['id'].toString() == speakerId);
+  }
+
+  Future<void> toggleStar(dynamic speakerId) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      final existingIndex = favoriteSpeakers.indexWhere(
+        (s) => s['id'].toString() == speakerId.toString(),
+      );
+
+      if (existingIndex >= 0) {
+        favoriteSpeakers.removeAt(existingIndex);
+      } else {
+        // Add full speaker object to favorites
+        final speakerToAdd = allSpeakers.firstWhere(
+          (sp) => sp['id'].toString() == speakerId.toString(),
+          orElse: () => null,
+        );
+        if (speakerToAdd != null) {
+          favoriteSpeakers.add(Map<String, dynamic>.from(speakerToAdd));
+        }
+      }
+    });
+
+    await prefs.setString('favoriteSpeakers', jsonEncode(favoriteSpeakers));
   }
 
   @override
@@ -64,7 +111,6 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Handle case where no speakers are found
     if (allSpeakers.isEmpty) {
       return const Center(child: Text("No speakers found."));
     }
@@ -76,7 +122,7 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
           child: Container(
             color: Colors.white,
             child: TextField(
-              onChanged: filterSpeakers, // Call filterSpeakers on text change
+              onChanged: filterSpeakers,
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 hintText: "Search For Speaker",
@@ -98,23 +144,28 @@ class _SpeakersListScreenState extends State<SpeakersListScreen> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount:
-                filteredSpeakers.length, // Use the filtered list for the count
+            itemCount: filteredSpeakers.length,
             itemBuilder: (context, index) {
-              final speaker =
-                  filteredSpeakers[index]; // Use the filtered list for the item
+              final speaker = filteredSpeakers[index];
+              final speakerId = speaker['id'].toString();
+
               return UserCard(
                 wholeObject: speaker,
                 onTap: (x) {
-                  print("Pulling info from ${x['name']}");
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          PersonDetailScreen(speaker: speaker),
+                      builder: (context) => PersonDetailScreen(speaker: speaker),
                     ),
                   );
                 },
+                trailing: IconButton(
+                  icon: Icon(
+                    isFavorite(speakerId) ? Icons.star : Icons.star_border,
+                    color: isFavorite(speakerId) ? Colors.amber : Colors.grey,
+                  ),
+                  onPressed: () => toggleStar(speakerId),
+                ),
               );
             },
           ),
