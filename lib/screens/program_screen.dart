@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
+import 'favorite_screen.dart';
 
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
@@ -103,7 +104,10 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   ),
                 ),
               ),
-              onTap: () {},
+              onTap: () {Navigator.push(
+  context,
+  MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+);},
             ),
           );
 

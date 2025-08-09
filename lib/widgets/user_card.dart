@@ -4,9 +4,16 @@ import 'image_finder.dart'; // Make sure this points to your utility file
 class UserCard extends StatefulWidget {
   final dynamic wholeObject;
   final void Function(dynamic)? onTap;
-  bool fromProgram;
+  final bool fromProgram;
+  final Widget? trailing; // <-- Add trailing here
 
-   UserCard({super.key, this.wholeObject, this.onTap, this.fromProgram = false});
+  UserCard({
+    super.key,
+    this.wholeObject,
+    this.onTap,
+    this.fromProgram = false,
+    this.trailing, // <-- Accept trailing
+  });
 
   @override
   State<UserCard> createState() => _UserCardState();
@@ -23,7 +30,7 @@ class _UserCardState extends State<UserCard> {
 
   Future<void> _findImage() async {
     // Call the reusable function instead of duplicating logic here
-    final foundPath =  await findImagePathById(widget.wholeObject['id']);
+    final foundPath = await findImagePathById(widget.wholeObject['id']);
     if (foundPath != null) {
       setState(() {
         imagePathWayString = foundPath;
@@ -53,6 +60,7 @@ class _UserCardState extends State<UserCard> {
           ),
           title: Text(widget.wholeObject['name'] ?? "N/A"),
           subtitle: Text(widget.wholeObject['prefixPl'] ?? "N/A"),
+          trailing: widget.trailing,  // <-- Insert trailing widget here
           shape: Border.all(),
         ),
       ),

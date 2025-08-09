@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape.dart';
-import 'package:pt_25_artro_test/widgets/user_card.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
 
@@ -11,7 +11,7 @@ class SessionContainer extends StatefulWidget {
   final List<dynamic> sessionContainer;
   final Function(List<dynamic>)? onSpeakerTap;
   final Color? backgroundColor;
-  final roomName;
+  final String? roomName;
 
   const SessionContainer({
     super.key,
@@ -27,33 +27,70 @@ class SessionContainer extends StatefulWidget {
 
 class _SessionContainerState extends State<SessionContainer> {
   List<dynamic> allSpeakers = [];
-  bool isLoading = true; // Use a boolean to manage loading state
+  bool isLoading = true;
+
+  /// Instead of just IDs, we store full speaker objects
+  List<Map<String, dynamic>> favoriteSpeakers = [];
 
   @override
   void initState() {
     super.initState();
     loadPeopleJson();
+    loadFavorites();
   }
 
   Future<void> loadPeopleJson() async {
     try {
-      final String peopleString = await rootBundle.loadString(
-        'assets/data/people.json',
-      );
+      final String peopleString =
+          await rootBundle.loadString('assets/data/people.json');
       final List<dynamic> peopleJson = jsonDecode(peopleString);
       setState(() {
         allSpeakers = peopleJson;
         isLoading = false;
       });
     } catch (e) {
-      // Handle the error if the file can't be loaded
       print("Error loading JSON: $e");
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
+    final favListDecoded =
+        List<Map<String, dynamic>>.from(jsonDecode(favListString));
+    setState(() {
+      favoriteSpeakers = favListDecoded;
+    });
+  }
+
+  Future<void> toggleFavorite(Map<String, dynamic> speaker) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final existingIndex = favoriteSpeakers
+          .indexWhere((s) => s['id'].toString() == speaker['id'].toString());
+
+      if (existingIndex >= 0) {
+        favoriteSpeakers.removeAt(existingIndex);
+      } else {
+        favoriteSpeakers.add(speaker);
+      }
+    });
+
+    await prefs.setString('favoriteSpeakers', jsonEncode(favoriteSpeakers));
+  }
+
+  static Future<List<Map<String, dynamic>>> getFavoriteSpeakers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
+    return List<Map<String, dynamic>>.from(jsonDecode(favListString));
+  }
+
+  bool isFavorite(String speakerId) {
+    return favoriteSpeakers.any((s) => s['id'].toString() == speakerId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.sessionContainer.isEmpty) return const SizedBox();
 
@@ -143,8 +180,7 @@ class _SessionContainerState extends State<SessionContainer> {
                             title: const Text('Description'),
                             content: Text(
                               unescape.convert(
-                                item['short_description_pl'] ??
-                                    'No description',
+                                item['short_description_pl'] ?? 'No description',
                               ),
                             ),
                             actions: [
@@ -168,9 +204,7 @@ class _SessionContainerState extends State<SessionContainer> {
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
-                        item['place_pl'] != ""
-                            ? item['place_pl']
-                            : 'OPEN STAGE',
+                        item['place_pl'] != "" ? item['place_pl'] : 'OPEN STAGE',
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 12,
@@ -180,103 +214,111 @@ class _SessionContainerState extends State<SessionContainer> {
                   if (item["speakers"] != null &&
                       item["speakers"] is List &&
                       item["speakers"].isNotEmpty)
-                    GestureDetector(
-                      onTap: () {
-                        if (widget.onSpeakerTap != null) {
-                          widget.onSpeakerTap!(item["speakers"]);
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List<Widget>.from(
-                            item["speakers"].map<Widget>((speaker) {
-                              return InkWell(
-                                onTap: () {
-                                  dynamic tmpPerson;
-
-                                  for (var person in allSpeakers) {
-                                    if (person['id'] == speaker['symbol']) {
-                                      tmpPerson = person;
-                                    }
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List<Widget>.from(
+                          item["speakers"].map<Widget>((speaker) {
+                            return InkWell(
+                              onTap: () {
+                                dynamic tmpPerson;
+                                for (var person in allSpeakers) {
+                                  if (person['id'] == speaker['symbol']) {
+                                    tmpPerson = person;
                                   }
+                                }
 
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      bool isFavorite =
-                                          false; // Local state for the dialog
+                                if (tmpPerson == null) return;
 
-                                      return StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return AlertDialog(
-                                            title: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                // Speaker name
-                                                Expanded(
-                                                  child: Text(
-                                                    speaker['name'] ??
-                                                        'Unknown Speaker',
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    bool isFav =
+                                        isFavorite(speaker['symbol'].toString());
+
+                                    return StatefulBuilder(
+                                      builder: (context, setStateDialog) {
+                                        return AlertDialog(
+                                          title: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  speaker['name'] ??
+                                                      'Unknown Speaker',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
-
-                                                // Star toggle
-                                                IconButton(
-                                                  icon: Icon(
-                                                    isFavorite
-                                                        ? Icons.star
-                                                        : Icons.star_border,
-                                                    color: isFavorite
-                                                        ? Colors.amber
-                                                        : Colors.grey,
-                                                  ),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      isFavorite = !isFavorite;
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  isFav
+                                                      ? Icons.star
+                                                      : Icons.star_border,
+                                                  color: isFav
+                                                      ? Colors.amber
+                                                      : Colors.grey,
+                                                ),
+                                                onPressed: () {
+                                                  toggleFavorite(
+                                                          Map<String, dynamic>.from(tmpPerson))
+                                                      .then((_) {
+                                                    setStateDialog(() {
+                                                      isFav = isFavorite(speaker[
+                                                              'symbol']
+                                                          .toString());
                                                     });
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                            content: UserCard(
-                                              wholeObject: tmpPerson,
-                                              onTap: (x) {
-                                                print(
-                                                  "Pulling info from ${x['name']}",
-                                                );
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PersonDetailScreen(
-                                                          speaker: tmpPerson,
-                                                        ),
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          content: UserCard(
+                                            wholeObject: tmpPerson,
+                                            onTap: (x) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PersonDetailScreen(
+                                                    speaker: tmpPerson,
                                                   ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  speaker["name"] ??
-                                      "*****************************************",
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      speaker["name"] ?? "Unknown",
+                                      style: const TextStyle(
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }),
-                          ),
+                                  Icon(
+                                    isFavorite(speaker['symbol'].toString())
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: isFavorite(
+                                            speaker['symbol'].toString())
+                                        ? Colors.amber
+                                        : Colors.grey,
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                         ),
                       ),
                     ),
