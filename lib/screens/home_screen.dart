@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
 import 'person_detail_screen.dart';
@@ -68,9 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
       "zones": "PR;",
       "member": "",
       "bioPl":
-          "Dr n. med. Tomasz Parda\u0142a \u2013 specjalista ortopeda w Polsce i Wielkiej Brytanii, doktor nauk medycznych, kierownik Kliniki Ortopedii Wydzia\u0142u Lekarskiego i Nauk o Zdrowiu w Krakowskiej Akademii im. Andrzeja Frycza Modrzewskiego, z siedzib\u0105 w Szpitalu \u015aw. Rafa\u0142a w Krakowie. [n] Specjalizuje si\u0119 w leczeniu du\u017cych staw\u00f3w: barku, biodra i kolana, gdzie wykonuje USG oraz pe\u0142ny zakres operacji. W szczeg\u00f3lno\u015bci operacje artroskopowe, operacje ratuj\u0105ce przed wszczepieniem protez staw\u00f3w, jak r\u00f3wnie\u017c operacje wszczepiania tych protez. [n] Absolwent Uniwersytetu Jagiello\u0144skiego, gdzie obroni\u0142 prac\u0119 doktorsk\u0105. Do\u015bwiadczenie zawodowe zdobywa\u0142 w Polsce i za granic\u0105 (Anglia, Szkocja). Sekretarz Zarz\u0105du Polskiego Towarzystwa Artroskopowego kadencji\u00a02019-2021.",
+          "Dr n. med. Tomasz Parda\u0142a \u2013 specjalista ortopeda w Polsce i Wielkiej Brytanii...",
       "bioEn":
-          "Orthopedic specialist in Poland and Great Britain, doctor of medical sciences, head of the Orthopedic Clinic of the Faculty of Medicine and Health Sciences at the Krakow Academy by Andrzej Frycz Modrzewski, based at the St. Hospital. Rafa\u0142 in Krakow. [n] He specializes in the treatment of large joints: shoulder, hip and knee, where he performs ultrasound and a full range of surgeries. In particular, arthroscopic surgeries, saving surgeries before the implantation of joint prostheses, as well as surgeries implanting these prostheses. [n] A graduate of the Jagiellonian University, where he defended his doctoral thesis. He gained professional experience in Poland and abroad (England, Scotland). Secretary of the Management Board of the Polish Arthroscopic Society of the 2019-2021 term.",
+          "Orthopedic specialist in Poland and Great Britain, doctor of medical sciences...",
     },
     {
       "id": "mac_bia",
@@ -86,13 +89,64 @@ class _HomeScreenState extends State<HomeScreen> {
       "titleEn": "Scientific director of Functional Diagnostics Laboratory",
       "zones": "PR;KF;",
       "member": "PTArtro, PTU, ESSKA",
-      "bioPl":
-          "Fizjoterapeuta, adiunkt w Katedrze Nauk Biomedycznych i Medycyny Fizykalnej na Wydziale Fizjoterapii Akademii Wychowania Fizycznego im. Jerzego Kukuczki w Katowicach, opiekun Knee Research Group - ko\u0142a naukowego przy Laboratorium Analizy Ruchu na tej samej uczelni. Fizjoterapeuta podczas Pucharu \u015awiata w siatk\u00f3wce pla\u017cowej - SWATCH FIVB World Tour 2009. W latach 2009-13 fizjoterapeuta Reprezentacji Polski w koszyk\u00f3wce na w\u00f3zkach, w 2012 roku powo\u0142any do sztabu misji medycznej Reprezentacji Polski na Paraolimpiad\u0119 w Londynie. Kierownik naukowy Pracowni Diagnostyki Funkcjonalnej w \u017corskiej Sport-Klinice, na co dzie\u0144 zajmuje si\u0119 prac\u0105 z pacjentami ortopedycznymi w Shoulder and Knee Clinic w Katowicach. Amator d\u0142ugodystansowych bieg\u00f3w g\u00f3rskich.",
-      "bioEn":
-          "Physiotherapist and an adjunct in the Department of Biomedical Sciences and Physical Medicine of the Academy of Physical Education in Katowice (Faculty of Rehabilitation), supervisor of the Knee Research Group - a scientific group of the Laboratory of Movement Analysis operating at the same university. Physiotherapist during the 2009 SWATCH FIVB Beach Volleyball World Championship. Physiotherapist in 2009-2013 of the Polish National Wheelchair Basketball Team, in 2012 appointed to the staff of the medical mission of the Polish National Team for the Paralympic Games in London. Research director of the Functional Diagnostic Laboratory of the Sport-Clinic in Zory working on a daily basis with orthopedic patients at the Shoulder and Knee Clinic in Katowice. Enthusiast of long-distance mountain running.",
+      "bioPl": "Fizjoterapeuta, adiunkt w Katedrze Nauk Biomedycznych...",
+      "bioEn": "Physiotherapist and an adjunct in the Department of Biomedical Sciences...",
     },
-    // add more entries here if needed
   ];
+
+  // FAVORITES LIST
+  List<Map<String, dynamic>> favoriteSpeakers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadFavorites();
+  }
+
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
+
+    try {
+      final List<dynamic> favListDecoded = jsonDecode(favListString);
+      setState(() {
+        favoriteSpeakers = favListDecoded.cast<Map<String, dynamic>>();
+      });
+    } catch (e) {
+      print("Error decoding favorites: $e");
+      setState(() {
+        favoriteSpeakers = [];
+      });
+    }
+  }
+
+  bool isFavorite(String speakerId) {
+    return favoriteSpeakers.any((s) => s['id'].toString() == speakerId);
+  }
+
+  Future<void> toggleStar(String speakerId) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      final existingIndex = favoriteSpeakers.indexWhere(
+        (s) => s['id'].toString() == speakerId,
+      );
+
+      if (existingIndex >= 0) {
+        favoriteSpeakers.removeAt(existingIndex);
+      } else {
+        final speakerToAdd = congressChairmen.firstWhere(
+          (sp) => sp['id'].toString() == speakerId,
+          orElse: () => {},
+        );
+        if (speakerToAdd.isNotEmpty) {
+          favoriteSpeakers.add(Map<String, dynamic>.from(speakerToAdd));
+        }
+      }
+    });
+
+    await prefs.setString('favoriteSpeakers', jsonEncode(favoriteSpeakers));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,10 +174,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[0]),
+                    builder: (context) =>
+                        PersonDetailScreen(speaker: congressChairmen[0]),
                   ),
                 );
               },
+              trailing: IconButton(
+                icon: Icon(
+                  isFavorite(congressChairmen[0]['id'])
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: isFavorite(congressChairmen[0]['id'])
+                      ? Colors.amber
+                      : Colors.grey,
+                ),
+                onPressed: () =>
+                    toggleStar(congressChairmen[0]['id']),
+              ),
             ),
             UserCard(
               wholeObject: congressChairmen[1],
@@ -131,10 +198,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[1]),
+                    builder: (context) =>
+                        PersonDetailScreen(speaker: congressChairmen[1]),
                   ),
                 );
               },
+              trailing: IconButton(
+                icon: Icon(
+                  isFavorite(congressChairmen[1]['id'])
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: isFavorite(congressChairmen[1]['id'])
+                      ? Colors.amber
+                      : Colors.grey,
+                ),
+                onPressed: () =>
+                    toggleStar(congressChairmen[1]['id']),
+              ),
             ),
             UserCard(
               wholeObject: congressChairmen[2],
@@ -142,10 +222,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[2]),
+                    builder: (context) =>
+                        PersonDetailScreen(speaker: congressChairmen[2]),
                   ),
                 );
               },
+              trailing: IconButton(
+                icon: Icon(
+                  isFavorite(congressChairmen[2]['id'])
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: isFavorite(congressChairmen[2]['id'])
+                      ? Colors.amber
+                      : Colors.grey,
+                ),
+                onPressed: () =>
+                    toggleStar(congressChairmen[2]['id']),
+              ),
             ),
             UserCard(
               wholeObject: congressChairmen[3],
@@ -153,10 +246,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PersonDetailScreen(speaker: congressChairmen[3]),
+                    builder: (context) =>
+                        PersonDetailScreen(speaker: congressChairmen[3]),
                   ),
                 );
               },
+              trailing: IconButton(
+                icon: Icon(
+                  isFavorite(congressChairmen[3]['id'])
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: isFavorite(congressChairmen[3]['id'])
+                      ? Colors.amber
+                      : Colors.grey,
+                ),
+                onPressed: () =>
+                    toggleStar(congressChairmen[3]['id']),
+              ),
             ),
           ],
         ),
