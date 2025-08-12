@@ -9,7 +9,6 @@ import 'widgets/app_drawer.dart';
 import 'screens/qr_screen.dart';
 import 'screens/program_screen.dart';
 import 'screens/speakers_screen.dart';
-import 'screens/favorite_screen.dart';
 import 'screens/sponsors_screen.dart';
 
 /// ---

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
@@ -90,7 +91,8 @@ class _HomeScreenState extends State<HomeScreen> {
       "zones": "PR;KF;",
       "member": "PTArtro, PTU, ESSKA",
       "bioPl": "Fizjoterapeuta, adiunkt w Katedrze Nauk Biomedycznych...",
-      "bioEn": "Physiotherapist and an adjunct in the Department of Biomedical Sciences...",
+      "bioEn":
+          "Physiotherapist and an adjunct in the Department of Biomedical Sciences...",
     },
   ];
 
@@ -188,8 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Colors.amber
                       : Colors.grey,
                 ),
-                onPressed: () =>
-                    toggleStar(congressChairmen[0]['id']),
+                onPressed: () => toggleStar(congressChairmen[0]['id']),
               ),
             ),
             UserCard(
@@ -212,8 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Colors.amber
                       : Colors.grey,
                 ),
-                onPressed: () =>
-                    toggleStar(congressChairmen[1]['id']),
+                onPressed: () => toggleStar(congressChairmen[1]['id']),
               ),
             ),
             UserCard(
@@ -236,8 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Colors.amber
                       : Colors.grey,
                 ),
-                onPressed: () =>
-                    toggleStar(congressChairmen[2]['id']),
+                onPressed: () => toggleStar(congressChairmen[2]['id']),
               ),
             ),
             UserCard(
@@ -260,8 +259,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? Colors.amber
                       : Colors.grey,
                 ),
-                onPressed: () =>
-                    toggleStar(congressChairmen[3]['id']),
+                onPressed: () => toggleStar(congressChairmen[3]['id']),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+              child: InkWell(
+                onTap: () async {
+                  final Uri url = Uri.parse('https://zjazd.ptartro.pl');
+                  if (await canLaunchUrl(url)){
+                    await launchUrl(url);
+                  }
+                  else{
+                    throw 'can not launch $url';
+                  }
+                },
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      8.0,
+                    ), // Use a specific radius
+                    side: const BorderSide(
+                      color: Color(0xFFE4287C), // Your specified color
+                      width: 2.0, // Set the border width here
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: 250,
+                    child: Center(child: Text("Visit Website")),
+                  ),
+                ),
               ),
             ),
           ],

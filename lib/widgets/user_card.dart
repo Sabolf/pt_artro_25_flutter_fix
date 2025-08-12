@@ -7,7 +7,7 @@ class UserCard extends StatefulWidget {
   final bool fromProgram;
   final Widget? trailing; // <-- Add trailing here
 
-  UserCard({
+  const UserCard({
     super.key,
     this.wholeObject,
     this.onTap,
