@@ -1,5 +1,9 @@
+// person_detail_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/widgets/image_finder.dart';
+import 'package:pt_25_artro_test/cached_request.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class PersonDetailScreen extends StatefulWidget {
   final dynamic speaker;
@@ -11,11 +15,15 @@ class PersonDetailScreen extends StatefulWidget {
 
 class _PersonDetailScreenState extends State<PersonDetailScreen> {
   String avatarUrl = "";
+  List<dynamic> _speakerSessions = [];
+  bool _isLoadingSessions = true;
+  final unescape = HtmlUnescape();
 
   @override
   void initState() {
     super.initState();
     _findImage();
+    _loadSessions();
   }
 
   Future<void> _findImage() async {
@@ -26,6 +34,41 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
         print("Found image path: $avatarUrl");
       });
     }
+  }
+
+  Future<void> _loadSessions() async {
+    // Fetch the program data from the API endpoint
+    cachedRequest.readDataOrCached(
+      endpoint: 'https://voteptartro.wisehub.pl/api/?action=get-program-flat',
+      method: 'GET',
+      onData: (data) {
+        if (data != null) {
+          final List<dynamic> allSessions = [];
+          // Extract all sessions from all days
+          data.forEach((key, value) {
+            if (key.startsWith('day') && !key.contains('rooms')) {
+              allSessions.addAll(value);
+            }
+          });
+
+          // Filter for sessions where the current speaker is present
+          final speakerSessions = allSessions.where((session) {
+            final speakersInSession = session['speakers'] as List<dynamic>?;
+            if (speakersInSession == null) {
+              return false;
+            }
+            return speakersInSession.any(
+              (speaker) => speaker['symbol'] == widget.speaker['id'],
+            );
+          }).toList();
+
+          setState(() {
+            _speakerSessions = speakerSessions;
+            _isLoadingSessions = false;
+          });
+        }
+      },
+    );
   }
 
   // Color palette for light mode
@@ -142,9 +185,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
-
               // Name and title
               Text(
                 "${widget.speaker['name'] ?? ''} ".trim(),
@@ -169,9 +210,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                     ),
                   ),
                 ),
-
               const SizedBox(height: 32),
-
               // Info container
               Container(
                 width: double.infinity,
@@ -201,10 +240,49 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 32),
-
               // Biography container
+              if (widget.speaker['bioEn'] != null &&
+                  (widget.speaker['bioEn'] as String).isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  margin: const EdgeInsets.only(bottom: 32),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Biography",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        unescape.convert((widget.speaker['bioEn'] ?? '').replaceAll('[n]', '\n')),
+                        style: const TextStyle(
+                          color: secondaryTextColor,
+                          fontSize: 15,
+                          height: 1.6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              // Sessions container
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -222,23 +300,51 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Biography",
-                      style: const TextStyle(
+                    const Text(
+                      "Sessions",
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: accentColor,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      (widget.speaker['bioEn'] ?? '').replaceAll('[n]', '\n'),
-                      style: const TextStyle(
-                        color: secondaryTextColor,
-                        fontSize: 15,
-                        height: 1.6,
-                      ),
-                    ),
+                    if (_isLoadingSessions)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_speakerSessions.isEmpty)
+                      const Text(
+                        "This speaker is not scheduled for any sessions.",
+                        style: TextStyle(
+                          color: secondaryTextColor,
+                          fontSize: 15,
+                        ),
+                      )
+                    else
+                      ..._speakerSessions.map((session) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Day ${session['day']}: ${session['start_time']} - ${session['end_time']}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryTextColor,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                unescape.convert(session['title_pl'] ?? ''),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: secondaryTextColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                   ],
                 ),
               ),
