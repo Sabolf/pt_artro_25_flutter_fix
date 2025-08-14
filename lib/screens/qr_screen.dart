@@ -9,36 +9,39 @@ class QrScreen extends StatefulWidget {
 }
 
 class _QrScreenState extends State<QrScreen> {
-  String? scannedCode;
+  late MobileScannerController cameraController;
+
+  @override
+  void initState() {
+    super.initState();
+    cameraController = MobileScannerController();
+  }
+
+  void _onDetect(BarcodeCapture capture) {
+    final String? data = capture.barcodes.first.rawValue;
+    if (data == null) return;
+
+    // Stop the camera
+    cameraController.stop();
+
+    // Pop the current route and return the data
+    Navigator.of(context).pop(data);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Scan QR Code')),
-      body: Column(
-        children: [
-          Expanded(
-            child: MobileScanner(
-              onDetect: (BarcodeCapture) {
-                final List<Barcode> barcodes = BarcodeCapture.barcodes;
-                for (final barcode in barcodes) {
-                  final code = barcode.rawValue;
-                  if (code != null){
-                    scannedCode = code;
-                    print(code);
-                  }
-                }
-                // Optionally stop the camera or navigate away here
-              },
-            ),
-          ),
-          if (scannedCode != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text('Scanned QR code: $scannedCode'),
-            ),
-        ],
+      appBar: AppBar(title: const Text("Scan QR Code")),
+      body: MobileScanner(
+        controller: cameraController,
+        onDetect: _onDetect,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    cameraController.dispose();
+    super.dispose();
   }
 }

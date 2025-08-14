@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
+import '../screens/ask_question_screen.dart'; // Import the new screen
 
 class SessionContainer extends StatefulWidget {
   final List<dynamic> sessionContainer;
@@ -27,10 +28,9 @@ class SessionContainer extends StatefulWidget {
 
 class _SessionContainerState extends State<SessionContainer> {
   List<dynamic> allSpeakers = [];
-  bool isLoading = true;
-
-  /// Instead of just IDs, we store full speaker objects
   List<Map<String, dynamic>> favoriteSpeakers = [];
+  List<Map<String, dynamic>> favoriteSessions = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -56,15 +56,24 @@ class _SessionContainerState extends State<SessionContainer> {
 
   Future<void> loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
-    final favListDecoded =
-        List<Map<String, dynamic>>.from(jsonDecode(favListString));
-    setState(() {
-      favoriteSpeakers = favListDecoded;
-    });
+    final favSpeakersString = prefs.getString('favoriteSpeakers') ?? '[]';
+    final favSessionsString = prefs.getString('favoriteSessions') ?? '[]';
+    
+    try {
+      setState(() {
+        favoriteSpeakers = List<Map<String, dynamic>>.from(jsonDecode(favSpeakersString));
+        favoriteSessions = List<Map<String, dynamic>>.from(jsonDecode(favSessionsString));
+      });
+    } catch (e) {
+      print("Error decoding favorites: $e");
+      setState(() {
+        favoriteSpeakers = [];
+        favoriteSessions = [];
+      });
+    }
   }
 
-  Future<void> toggleFavorite(Map<String, dynamic> speaker) async {
+  Future<void> toggleFavoriteSpeaker(Map<String, dynamic> speaker) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       final existingIndex = favoriteSpeakers
@@ -80,14 +89,25 @@ class _SessionContainerState extends State<SessionContainer> {
     await prefs.setString('favoriteSpeakers', jsonEncode(favoriteSpeakers));
   }
 
-  static Future<List<Map<String, dynamic>>> getFavoriteSpeakers() async {
+  Future<void> toggleFavoriteSession(Map<String, dynamic> session) async {
     final prefs = await SharedPreferences.getInstance();
-    final favListString = prefs.getString('favoriteSpeakers') ?? '[]';
-    return List<Map<String, dynamic>>.from(jsonDecode(favListString));
+    setState(() {
+      final index = favoriteSessions.indexWhere((s) => s['id'].toString() == session['id'].toString());
+      if (index >= 0) {
+        favoriteSessions.removeAt(index);
+      } else {
+        favoriteSessions.add(session);
+      }
+    });
+    await prefs.setString('favoriteSessions', jsonEncode(favoriteSessions));
   }
 
-  bool isFavorite(String speakerId) {
+  bool isFavoriteSpeaker(String speakerId) {
     return favoriteSpeakers.any((s) => s['id'].toString() == speakerId);
+  }
+
+  bool isFavoriteSession(String sessionId) {
+    return favoriteSessions.any((s) => s['id'].toString() == sessionId);
   }
 
   @override
@@ -135,6 +155,8 @@ class _SessionContainerState extends State<SessionContainer> {
   }) {
     final timeBgColor = !isFirst ? Colors.grey.shade200 : Colors.grey.shade700;
     final titleBgColor = !isFirst ? Colors.white : Colors.grey.shade300;
+    final speakers = (item["speakers"] is List) ? item["speakers"] : [];
+    final bool isSessionFav = isFavoriteSession(item['id'].toString());
 
     return IntrinsicHeight(
       child: Row(
@@ -171,34 +193,150 @@ class _SessionContainerState extends State<SessionContainer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (isFirst) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('Description'),
-                            content: Text(
-                              unescape.convert(
-                                item['short_description_pl'] ?? 'No description',
-                              ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return StatefulBuilder(
+                                  builder: (context, setStateDialog) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        unescape.convert(
+                                          item["title_pl"] ??
+                                              item["title_en"] ??
+                                              "",
+                                        ),
+                                      ),
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if ((item['short_description_pl'] ?? '')
+                                                .isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 10),
+                                                child: Text(
+                                                  unescape.convert(item[
+                                                          'short_description_pl'] ??
+                                                      ''),
+                                                  style:
+                                                      const TextStyle(fontSize: 14),
+                                                ),
+                                              ),
+                                            if (speakers.isNotEmpty)
+                                              Column(
+                                                children: speakers
+                                                    .map<Widget>((speaker) {
+                                                  dynamic tmpPerson;
+                                                  for (var person in allSpeakers) {
+                                                    if (person['id'] ==
+                                                        speaker['symbol']) {
+                                                      tmpPerson = person;
+                                                      break;
+                                                    }
+                                                  }
+                                                  if (tmpPerson == null) {
+                                                    return const SizedBox();
+                                                  }
+                                                  bool isFav = isFavoriteSpeaker(
+                                                      speaker['symbol'].toString());
+                                                  return ListTile(
+                                                    contentPadding: EdgeInsets.zero,
+                                                    title: Text(speaker["name"] ??
+                                                        "Unknown"),
+                                                    trailing: IconButton(
+                                                      icon: Icon(
+                                                        isFav
+                                                            ? Icons.star
+                                                            : Icons.star_border,
+                                                        color: isFav
+                                                            ? Colors.amber
+                                                            : Colors.grey,
+                                                      ),
+                                                      onPressed: () {
+                                                        toggleFavoriteSpeaker(
+                                                                Map<String, dynamic>.from(
+                                                                    tmpPerson))
+                                                            .then((_) {
+                                                          setState(() {});
+                                                          setStateDialog(() {});
+                                                        });
+                                                      },
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              PersonDetailScreen(
+                                                            speaker: tmpPerson,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                }).toList(),
+                                              )
+                                            else if (!isFirst)
+                                              const Text(
+                                                  "No speakers for this session."),
+                                          ],
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("Ask a Question"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/askQuestion',
+                                              arguments: {
+                                                'details': Map<String, dynamic>.from(item),
+                                                'day': item['day'].toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text("Close"),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            unescape.convert(
+                              item["title_pl"] ?? item["title_en"] ?? "",
                             ),
-                            actions: [
-                              TextButton(
-                                child: const Text("OK"),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                        );
-                      }
-                    },
-                    child: Text(
-                      unescape.convert(
-                        item["title_pl"] ?? item["title_en"] ?? "",
+                        ),
                       ),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                      IconButton(
+                        icon: Icon(
+                          isSessionFav ? Icons.star : Icons.star_border,
+                          color: isSessionFav ? Colors.amber : Colors.grey,
+                        ),
+                        onPressed: () {
+                          toggleFavoriteSession(Map<String, dynamic>.from(item)).then((_) {
+                            setState(() {});
+                          });
+                        },
+                      ),
+                    ],
                   ),
                   if (item['place_pl'] != null)
                     Padding(
@@ -211,15 +349,13 @@ class _SessionContainerState extends State<SessionContainer> {
                         ),
                       ),
                     ),
-                  if (item["speakers"] != null &&
-                      item["speakers"] is List &&
-                      item["speakers"].isNotEmpty)
+                  if (widget.sessionContainer.length > 1 && speakers.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List<Widget>.from(
-                          item["speakers"].map<Widget>((speaker) {
+                          speakers.map<Widget>((speaker) {
                             return InkWell(
                               onTap: () {
                                 dynamic tmpPerson;
@@ -234,8 +370,7 @@ class _SessionContainerState extends State<SessionContainer> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    bool isFav =
-                                        isFavorite(speaker['symbol'].toString());
+                                    bool isFav = isFavoriteSpeaker(speaker['symbol'].toString());
 
                                     return StatefulBuilder(
                                       builder: (context, setStateDialog) {
@@ -262,13 +397,15 @@ class _SessionContainerState extends State<SessionContainer> {
                                                       : Colors.grey,
                                                 ),
                                                 onPressed: () {
-                                                  toggleFavorite(
-                                                          Map<String, dynamic>.from(tmpPerson))
+                                                  toggleFavoriteSpeaker(
+                                                          Map<String, dynamic>.from(
+                                                              tmpPerson))
                                                       .then((_) {
+                                                    setState(() {});
                                                     setStateDialog(() {
-                                                      isFav = isFavorite(speaker[
-                                                              'symbol']
-                                                          .toString());
+                                                      isFav = isFavoriteSpeaker(
+                                                          speaker['symbol']
+                                                              .toString());
                                                     });
                                                   });
                                                 },
@@ -306,10 +443,10 @@ class _SessionContainerState extends State<SessionContainer> {
                                     ),
                                   ),
                                   Icon(
-                                    isFavorite(speaker['symbol'].toString())
+                                    isFavoriteSpeaker(speaker['symbol'].toString())
                                         ? Icons.star
                                         : Icons.star_border,
-                                    color: isFavorite(
+                                    color: isFavoriteSpeaker(
                                             speaker['symbol'].toString())
                                         ? Colors.amber
                                         : Colors.grey,

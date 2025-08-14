@@ -1,8 +1,12 @@
+// program_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
 import 'favorite_screen.dart';
 import 'sponsors_screen.dart';
+// Import the new screen
+import 'my_questions_screen.dart';
 
 class ProgramScreen extends StatefulWidget {
   const ProgramScreen({super.key});
@@ -12,7 +16,6 @@ class ProgramScreen extends StatefulWidget {
 }
 
 class _ProgramScreenState extends State<ProgramScreen> {
-  //MAP<String Key, Value>?
   Map<String, dynamic>? _apiData;
   List<dynamic> dayTabs = [];
   List<Widget> dayTabView = [];
@@ -20,8 +23,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
 
   @override
   void initState() {
-    //When the app loads
-    super.initState(); //<-REQUIRED
+    super.initState();
     _loadData();
   }
 
@@ -35,24 +37,25 @@ class _ProgramScreenState extends State<ProgramScreen> {
             _apiData = data;
           });
 
-          //checks for each day and then adds it to the array
-
           data.forEach((key, value) {
-            if (key == 'day0' ||
-                key == 'day1' ||
-                key == 'day2' ||
-                key == 'day3') {
+            if (key.startsWith('day') && !key.contains('rooms')) {
               dayTabs.add(value);
-            } else if (key == "day0rooms" ||
-                key == "day1rooms" ||
-                key == "day2rooms" ||
-                key == "day3rooms") {
+            } else if (key.contains('rooms')) {
               dayRoomAmounts.add(value);
             }
-
-            //-------------------------------------- Make The Day Tabs Dynamically
           });
+
+          // Add day info to each session
           for (var i = 0; i < dayTabs.length; i++) {
+            for (var session in dayTabs[i]) {
+              session['day'] = i + 1; // inject day number
+              if (dayRoomAmounts.length > i && session['room_index'] != null) {
+                session['room'] = dayRoomAmounts[i][session['room_index']];
+              } else {
+                session['room'] = session['room'] ?? 'Unknown Room';
+              }
+            }
+
             dayTabView.add(
               InkWell(
                 child: Padding(
@@ -65,7 +68,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
                       child: Center(
                         child: Text(
                           "Day: ${i + 1}",
-                          style: TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -86,6 +89,8 @@ class _ProgramScreenState extends State<ProgramScreen> {
               ),
             );
           }
+
+          // Favorites button
           dayTabView.add(
             InkWell(
               child: Padding(
@@ -95,7 +100,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   height: 70,
                   child: Card(
                     shadowColor: Colors.red,
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Favorites",
                         style: TextStyle(fontSize: 20),
@@ -114,6 +119,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
             ),
           );
 
+          // Add the new "My Questions" button
           dayTabView.add(
             InkWell(
               child: Padding(
@@ -123,9 +129,9 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   height: 70,
                   child: Card(
                     shadowColor: Colors.red,
-                    child: Center(
+                    child: const Center(
                       child: Text(
-                        "Sponsors",
+                        "My Questions",
                         style: TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
@@ -136,21 +142,17 @@ class _ProgramScreenState extends State<ProgramScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const SponsorsScreen()),
+                  MaterialPageRoute(builder: (_) => const MyQuestionsScreen()),
                 );
               },
             ),
           );
+
+         
+          
         }
       },
     );
-
-    // if (data != null) {
-    //   //rebuild the value to
-    //   setState(() {
-    //     _apiData = data;
-    //   });
-    // }
   }
 
   @override
@@ -166,16 +168,16 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: (Text(
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
                     "DATA IS LOADING",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                  )),
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(14.0),
+              const Padding(
+                padding: EdgeInsets.all(14.0),
                 child: CircularProgressIndicator(),
               ),
             ],
@@ -192,6 +194,6 @@ class _ProgramScreenState extends State<ProgramScreen> {
           children: dayTabView,
         ),
       ),
-    ); // top will have my component with buttons from a seperate compinent
+    );
   }
 }

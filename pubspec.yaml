@@ -40,6 +40,9 @@ dependencies:
   photo_view: ^0.14.0
   html_unescape: ^2.0.0
   path: ^1.8.1  
+  webview_flutter: ^4.2.2  # <-- This is required
+  audioplayers: ^5.0.0
+
   
 
   # The following adds the Cupertino Icons font to your application.
@@ -62,17 +65,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/ # <--- ADD THIS LINE AND ENSURE INDENTATION
     - assets/data/
     - assets/images/people/
+    - assets/images/New_Plan/ # This is essential for your floor plan images
     - assets/image_paths.json
+    - assets/images/ # Add t
 
     # You can also include an entire folder like this:
     # - assets/
