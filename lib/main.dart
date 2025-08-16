@@ -9,6 +9,7 @@ import 'screens/speakers_screen.dart';
 import 'screens/sponsors_screen.dart';
 import 'screens/plan_screen.dart';
 import 'screens/arthrex_screen.dart';
+import 'screens/beacon_test.dart';
 
 // Import the drawer widget used for navigation
 import 'widgets/app_drawer.dart';
@@ -72,6 +73,8 @@ class _MainScreenState extends State<MainScreen> {
     SponsorsScreen(), // 5
     PlanScreen(), // 6
     ArthrexScreen(), // 7
+    BeaconTest()
+    
   ];
 
   final List<String> _titles = [
@@ -83,6 +86,8 @@ class _MainScreenState extends State<MainScreen> {
     'Sponsors',
     'Plan',
     'Arthrex',
+    'TEST BEACON',
+  
   ];
 
   void _selectTab(int index, {bool fromDrawer = true}) {

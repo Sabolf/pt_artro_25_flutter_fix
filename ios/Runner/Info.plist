@@ -45,5 +45,31 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- 🔑 iOS Permissions -->
+
+	<key>NSCameraUsageDescription</key>
+	<string>We need camera access to scan QR codes.</string>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need photo library access to save and load images.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need microphone access for scanning with audio.</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app uses your location to detect nearby beacons.</string>
+
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app uses your location to detect nearby beacons even in background.</string>
+
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app uses Bluetooth to detect nearby beacons.</string>
+
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
