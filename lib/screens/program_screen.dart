@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
 import 'favorite_screen.dart';
-import 'sponsors_screen.dart';
 // Import the new screen
 import 'my_questions_screen.dart';
 

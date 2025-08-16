@@ -113,7 +113,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     },
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 20),
             ],
             if (favoriteSpeakers.isNotEmpty) ...[
@@ -137,7 +137,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     tooltip: "Remove from favorites",
                   ),
                 );
-              }).toList(),
+              }),
             ],
             if (favoriteSessions.isEmpty && favoriteSpeakers.isEmpty)
               const Center(

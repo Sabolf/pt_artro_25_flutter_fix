@@ -192,7 +192,7 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
     final CommonStyles commonStyles = CommonStyles();
     
     // Check if _itemDetails has been initialized
-    if (!mounted || !(_itemDetails is Map<String, dynamic>)) {
+    if (!mounted) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );

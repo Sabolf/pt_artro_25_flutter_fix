@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
-import '../screens/ask_question_screen.dart'; // Import the new screen
+// Import the new screen
 
 class SessionContainer extends StatefulWidget {
   final List<dynamic> sessionContainer;

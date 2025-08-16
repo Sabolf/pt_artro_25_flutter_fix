@@ -344,7 +344,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                   ],
                 ),
               ),
