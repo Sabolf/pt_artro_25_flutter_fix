@@ -118,12 +118,19 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
       _isWorking = true;
     });
 
-    _itemDetails['question'] = _question;
-    _itemDetails['userName'] = _yourName;
-    _itemDetails['day'] = _day;
-    _itemDetails['user'] = _ean;
+    // Construct the data map to be sent to the API
+    final Map<String, dynamic> dataToSend = {
+      'user': _ean,
+      'id': _itemDetails['id'], // Assuming the 'id' is in _itemDetails
+      'question': _question,
+      'title': _itemDetails['title_pl'] ?? _itemDetails['title_en'],
+      'userName': _yourName,
+      'prelegent': (_itemDetails['speakers'] as List<dynamic>?)
+          ?.map((speaker) => speaker['name'])
+          .where((name) => name != null)
+          .join(', ') ?? '',
+    };
 
-    // Replace with your actual API URL
     const String saveQuestionUrl =
         'https://voteptartro.wisehub.pl/api/index.php?action=save-question';
 
@@ -131,11 +138,28 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
       final response = await http.post(
         Uri.parse(saveQuestionUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(_itemDetails),
+        body: jsonEncode(dataToSend), // Use the new dataToSend map
       );
 
+      // Check if the widget is still mounted after the async operation
+      if (!mounted) return;
+
       if (response.statusCode == 200) {
-        await FileManager.addToFileArray('user_question', _itemDetails);
+        // Create a map to save locally that includes the title
+        final Map<String, dynamic> localQuestionData = {
+          'id': _itemDetails['id'],
+          'question': _question,
+          'title': _itemDetails['title_pl'] ?? _itemDetails['title_en'],
+          'userName': _yourName,
+          'user': _ean,
+          'prelegent': (_itemDetails['speakers'] as List<dynamic>?)
+              ?.map((speaker) => speaker['name'])
+              .where((name) => name != null)
+              .join(', ') ?? '',
+          'day': _day,
+        };
+        
+        await FileManager.addToFileArray('user_question', localQuestionData);
         _showMessage(
             AppLocalizations.of(context)!.translate('question_saved_ok'));
       } else {
@@ -145,14 +169,17 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
       }
     } catch (e) {
       print('Error: $e');
-      _showMessage(
-          AppLocalizations.of(context)!.translate('question_saved_error'));
+      if (mounted) {
+        _showMessage(
+            AppLocalizations.of(context)!.translate('question_saved_error'));
+      }
     } finally {
-      setState(() {
-        _isWorking = false;
-      });
-      // Navigate back after showing the message
-      Navigator.pop(context);
+      if (mounted) {
+        setState(() {
+          _isWorking = false;
+        });
+        // The navigation is now handled by the dialog's dismiss button
+      }
     }
   }
 
@@ -167,6 +194,9 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
             TextButton(
               child: Text(AppLocalizations.of(context)!.translate('OK')),
               onPressed: () {
+                // First, pop the dialog
+                Navigator.of(context).pop();
+                // Then, navigate back to the previous screen
                 Navigator.of(context).pop();
               },
             ),
@@ -180,6 +210,8 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(builder: (ctx) => const QrScreen()),
     );
+    // Check if the widget is still mounted after the async operation
+    if (!mounted) return;
     if (result != null && result is String) {
       setState(() {
         _ean = result;

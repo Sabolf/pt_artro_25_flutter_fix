@@ -67,7 +67,7 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
         itemBuilder: (context, index) {
           final question = _askedQuestions[index];
           // Assuming 'title_pl' is the name of the session
-          final sessionTitle = question['title_pl'] ?? 'N/A';
+          final sessionTitle = question['title'] ?? 'N/A'; // CHANGED THIS LINE
           final myQuestion = question['question'] ?? 'No question text';
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

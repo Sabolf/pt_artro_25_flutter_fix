@@ -47,7 +47,24 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
           // Extract all sessions from all days
           data.forEach((key, value) {
             if (key.startsWith('day') && !key.contains('rooms')) {
-              allSessions.addAll(value);
+              final dayNumber = int.parse(key.replaceAll('day', '')) + 1;
+
+              final sessionsWithDayAndRoom = (value as List).map((session) {
+                String roomName = session['place_en']?.isNotEmpty == true
+                    ? session['place_en']
+                    : session['place_pl'];
+
+                if (roomName.isEmpty) {
+                  roomName = "Open Stage";
+                }
+
+                return {
+                  ...session,
+                  'day': dayNumber.toString(),
+                  'room': roomName,
+                };
+              }).toList();
+              allSessions.addAll(sessionsWithDayAndRoom);
             }
           });
 
@@ -77,6 +94,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   static const accentColor = Color(0xFFE4287C);
   static const primaryTextColor = Color(0xFF1F1F1F);
   static const secondaryTextColor = Color(0xFF6B6B7C);
+  static const tertiaryTextColor = Color(0xFFB0B0C0);
 
   // Widget to display an info row with an icon, label, and value
   Widget infoRow(IconData icon, String label, String? value) {
@@ -322,26 +340,47 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                     else
                       ..._speakerSessions.map((session) {
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Day ${session['day']}: ${session['start_time']} - ${session['end_time']}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryTextColor,
-                                ),
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(color: accentColor, width: 4),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                unescape.convert(session['title_pl'] ?? ''),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: secondaryTextColor,
+                            ),
+                            padding: const EdgeInsets.only(left: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Title of the session
+                                Text(
+                                  unescape.convert(session['title_pl'] ?? ''),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryTextColor,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 4),
+                                // Day and Time
+                                Text(
+                                  "Day ${session['day']}: ${session['start_time']} - ${session['end_time']}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: secondaryTextColor,
+                                  ),
+                                ),
+                                // Room number, if available
+                                if (session['room'] != null && session['room'].isNotEmpty)
+                                  Text(
+                                    "${session['room']}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: secondaryTextColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         );
                       }),
