@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 // Import the QR screen to navigate to it
 import 'qr_screen.dart';
@@ -12,29 +13,36 @@ class CommonStyles {
   final double pillBorderRadius = 25.0;
 }
 
+// NOTE: Removed the top-level declaration:
+// final locData = loc.AppLocalizations.of(context)!;
+
 class AppLocalizations {
+  final loc.AppLocalizations _localizations;
+
+  AppLocalizations(this._localizations);
+
   String translate(String key) {
     switch (key) {
       case 'askQuestion':
-        return 'Ask a Question';
+        return _localizations.askQuestion;
       case 'askingTo':
-        return 'Asking to';
+        return _localizations.askingTo;
       case 'prelegent':
-        return 'Presenter';
+        return _localizations.presenters;
       case 'yourQuestion':
-        return 'Your Question';
+        return _localizations.yourQuestion;
       case 'yourName':
-        return 'Your Name';
+        return _localizations.yourName;
       case 'scan_badge_to_send_question':
-        return 'Scan Badge to Send Question';
+        return _localizations.scan_badge_to_send_question;
       case 'send_question':
-        return 'Send Question';
+        return _localizations.send_question;
       case 'question_saved_ok':
-        return 'Question saved successfully!';
+        return _localizations.question_saved_ok;
       case 'question_saved_error':
-        return 'Error saving question.';
+        return _localizations.question_saved_error;
       case 'Notification':
-        return 'Notification';
+        return _localizations.notification;
       case 'OK':
         return 'OK';
       default:
@@ -43,7 +51,8 @@ class AppLocalizations {
   }
 
   static AppLocalizations? of(BuildContext context) {
-    return AppLocalizations();
+    final localization = loc.AppLocalizations.of(context);
+    return localization != null ? AppLocalizations(localization) : null;
   }
 }
 
@@ -126,9 +135,10 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
       'title': _itemDetails['title_pl'] ?? _itemDetails['title_en'],
       'userName': _yourName,
       'prelegent': (_itemDetails['speakers'] as List<dynamic>?)
-          ?.map((speaker) => speaker['name'])
-          .where((name) => name != null)
-          .join(', ') ?? '',
+              ?.map((speaker) => speaker['name'])
+              .where((name) => name != null)
+              .join(', ') ??
+          '',
     };
 
     const String saveQuestionUrl =
@@ -153,12 +163,13 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
           'userName': _yourName,
           'user': _ean,
           'prelegent': (_itemDetails['speakers'] as List<dynamic>?)
-              ?.map((speaker) => speaker['name'])
-              .where((name) => name != null)
-              .join(', ') ?? '',
+                  ?.map((speaker) => speaker['name'])
+                  .where((name) => name != null)
+                  .join(', ') ??
+              '',
           'day': _day,
         };
-        
+
         await FileManager.addToFileArray('user_question', localQuestionData);
         _showMessage(
             AppLocalizations.of(context)!.translate('question_saved_ok'));
@@ -187,12 +198,13 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final localizations = AppLocalizations.of(context)!;
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.translate('Notification')),
+          title: Text(localizations.translate('Notification')),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text(AppLocalizations.of(context)!.translate('OK')),
+              child: Text(localizations.translate('OK')),
               onPressed: () {
                 // First, pop the dialog
                 Navigator.of(context).pop();
@@ -221,8 +233,9 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     final CommonStyles commonStyles = CommonStyles();
-    
+
     // Check if _itemDetails has been initialized
     if (!mounted) {
       return const Scaffold(
@@ -232,13 +245,14 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
 
     // Extract prelegent names
     String prelegentNames = (_itemDetails['speakers'] as List<dynamic>?)
-        ?.map((speaker) => speaker['name'])
-        .where((name) => name != null)
-        .join(', ') ?? 'N/A';
-    
+            ?.map((speaker) => speaker['name'])
+            .where((name) => name != null)
+            .join(', ') ??
+        'N/A';
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.translate('askQuestion')),
+        title: Text(localizations.translate('askQuestion')),
       ),
       body: Stack(
         children: [
@@ -249,7 +263,8 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(16.0),
-                  margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 20.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
@@ -266,16 +281,18 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppLocalizations.of(context)!.translate('askingTo'),
+                        localizations.translate('askingTo'),
                         style: const TextStyle(fontWeight: FontWeight.normal),
                       ),
                       Text(
-                        _itemDetails['title_pl'] ?? _itemDetails['title_en'] ?? 'N/A',
+                        _itemDetails['title_pl'] ??
+                            _itemDetails['title_en'] ??
+                            'N/A',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        AppLocalizations.of(context)!.translate('prelegent'),
+                        localizations.translate('prelegent'),
                         style: const TextStyle(fontWeight: FontWeight.normal),
                       ),
                       Text(
@@ -284,7 +301,7 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        AppLocalizations.of(context)!.translate('yourQuestion'),
+                        localizations.translate('yourQuestion'),
                         style: const TextStyle(fontWeight: FontWeight.normal),
                       ),
                       TextField(
@@ -299,7 +316,7 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        AppLocalizations.of(context)!.translate('yourName'),
+                        localizations.translate('yourName'),
                         style: const TextStyle(fontWeight: FontWeight.normal),
                       ),
                       TextField(
@@ -323,14 +340,17 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
                         ElevatedButton(
                           onPressed: _isWorking ? null : _scanBadge,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
                             minimumSize: const Size(double.infinity, 52),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(commonStyles.pillBorderRadius),
+                              borderRadius: BorderRadius.circular(
+                                  commonStyles.pillBorderRadius),
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.translate('scan_badge_to_send_question'),
+                            localizations.translate(
+                                'scan_badge_to_send_question'),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -338,13 +358,15 @@ class _AskQuestionScreenState extends State<AskQuestionScreen> {
                         ElevatedButton(
                           onPressed: _isWorking ? null : _sendData,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(commonStyles.pillBorderRadius),
+                              borderRadius: BorderRadius.circular(
+                                  commonStyles.pillBorderRadius),
                             ),
                           ),
                           child: Text(
-                            AppLocalizations.of(context)!.translate('send_question'),
+                            localizations.translate('send_question'),
                             textAlign: TextAlign.center,
                           ),
                         ),

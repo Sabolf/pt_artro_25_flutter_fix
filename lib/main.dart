@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-// Import custom screens (widgets for each tab)
+// Import custom screens
 import 'screens/home_screen.dart';
 import 'screens/location_screen.dart';
 import 'screens/qr_screen.dart';
@@ -10,25 +9,25 @@ import 'screens/sponsors_screen.dart';
 import 'screens/plan_screen.dart';
 import 'screens/arthrex_screen.dart';
 import 'screens/beacon_test.dart';
+import 'screens/messages.dart';
 
-// Import the drawer widget used for navigation
+// Import the drawer widget
 import 'widgets/app_drawer.dart';
 
-// Import the new screens to add to the routes
+// Import the new screens for routes
 import 'screens/ask_question_screen.dart';
 
-/// ---
-/// GLOBAL KEY is no longer needed.
-// final GlobalKey<_MainScreenState> mainScreenKey = GlobalKey<_MainScreenState>();
+// Flutter localization
+import 'package:flutter_localizations/flutter_localizations.dart';
+// Generated localization (use alias)
+import 'l10n/app_localizations.dart' as loc;
 
-/// ---
-/// ENTRY POINT OF THE APP
+/// ENTRY POINT
 void main() {
   runApp(const MyApp());
 }
 
-/// ---
-/// A StatelessWidget means this widget never changes (no internal state)
+/// StatelessWidget: does not hold state
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -36,21 +35,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Drawer Navigation Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-      ),
-      // The home property is a more direct way to start with MainScreen
+      theme: ThemeData(primarySwatch: Colors.red),
+      localizationsDelegates: const [
+        loc.AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''), // English
+        Locale('pl', ''), // Polish
+      ],
       home: const MainScreen(),
-      routes: {
-        // You can still keep named routes for other screens if needed
-        '/askQuestion': (context) => const AskQuestionScreen(),
-      },
+      routes: {'/askQuestion': (context) => const AskQuestionScreen()},
     );
   }
 }
 
-/// ---
-/// A StatefulWidget can change over time (e.g., switching between tabs)
+/// StatefulWidget: holds state (like selected tab)
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -58,37 +60,37 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-/// ---
-/// The state (logic + data + UI) for MainScreen
+/// State for MainScreen
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    HomeScreen(), // 0
-    LocationScreen(), // 1
-    // The QrScreen is a new route, not part of the main body, so we can use a placeholder
-    const Text('QR Code scanner is a new route'), // 2
-    ProgramScreen(), // 3
-    SpeakersListScreen(), // 4
-    SponsorsScreen(), // 5
-    PlanScreen(), // 6
-    ArthrexScreen(), // 7
-    BeaconTest()
-    
+    HomeScreen(),
+    ProgramScreen(),
+    PlanScreen(),
+    SpeakersListScreen(),
+    SponsorsScreen(),
+    LocationScreen(),
+    ArthrexScreen(),
+    MessagesScreen(),
+    BeaconTest(),
   ];
 
-  final List<String> _titles = [
-    'Home',
-    'Location',
-    'QR CODE',
-    'Program',
-    'Speakers',
-    'Sponsors',
-    'Plan',
-    'Arthrex',
-    'TEST BEACON',
-  
-  ];
+  /// Returns the localized titles dynamically
+  List<String> _titles(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
+    return [
+      locData.meeting_pt,
+      locData.program,
+      locData.building_plan,
+      locData.speakers,
+      locData.sponsor_title,
+      locData.location,
+      locData.menu_sn,
+      locData.messages,
+      'beacon Test',
+    ];
+  }
 
   void _selectTab(int index, {bool fromDrawer = true}) {
     setState(() {
@@ -100,43 +102,37 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // This method handles the result from the QrScreen after it's popped.
   void _handleQrCodeResult(String? result) {
     if (result == null) return;
-    
-    // Check for the specific Arthrex code
+
     if (result.contains("SPONSOR:ARTHREX")) {
-      // Switch the main screen's tab
       _selectTab(7, fromDrawer: false);
     } else {
-      // Handle other QR codes
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Scanned: $result')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Scanned: $result')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final titles = _titles(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
+        title: Text(titles[_selectedIndex]),
         actions: [
           IconButton(
             onPressed: () {
-              // Push the QrScreen as a new route and wait for a result
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => const QrScreen()),
-              ).then((result) => _handleQrCodeResult(result as String?));
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (ctx) => const QrScreen()))
+                  .then((result) => _handleQrCodeResult(result as String?));
             },
             icon: const Icon(Icons.qr_code),
           ),
         ],
       ),
-      drawer: AppDrawer(
-        selectedIndex: _selectedIndex,
-        onSelectTab: _selectTab,
-      ),
+      drawer: AppDrawer(selectedIndex: _selectedIndex, onSelectTab: _selectTab),
       body: _screens[_selectedIndex],
     );
   }

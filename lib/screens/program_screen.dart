@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:pt_25_artro_test/screens/day_detail_screen.dart';
 import 'favorite_screen.dart';
+import '../l10n/app_localizations.dart' as loc;
 // Import the new screen
 import 'my_questions_screen.dart';
 
@@ -23,10 +24,13 @@ class _ProgramScreenState extends State<ProgramScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    // This ensures context is available when _loadData is called.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData(context));
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData(BuildContext context) async {
+    final locData = loc.AppLocalizations.of(context)!;
+
     cachedRequest.readDataOrCached(
       endpoint: 'https://voteptartro.wisehub.pl/api/?action=get-program-flat',
       method: 'GET',
@@ -34,6 +38,9 @@ class _ProgramScreenState extends State<ProgramScreen> {
         if (data != null) {
           setState(() {
             _apiData = data;
+            dayTabs.clear();
+            dayTabView.clear();
+            dayRoomAmounts.clear();
           });
 
           data.forEach((key, value) {
@@ -48,11 +55,17 @@ class _ProgramScreenState extends State<ProgramScreen> {
           for (var i = 0; i < dayTabs.length; i++) {
             for (var session in dayTabs[i]) {
               session['day'] = i + 1; // inject day number
-              if (dayRoomAmounts.length > i && session['room_index'] != null) {
-                session['room'] = dayRoomAmounts[i][session['room_index']];
+              
+              // Use the language-specific place fields directly from the session
+              final currentLocale = Localizations.localeOf(context).languageCode;
+              String roomName;
+              
+              if (currentLocale == 'pl') {
+                roomName = session['place_pl'] ?? session['place_en'] ?? 'Unknown Room';
               } else {
-                session['room'] = session['room'] ?? 'Unknown Room';
+                roomName = session['place_en'] ?? session['place_pl'] ?? 'Unknown Room';
               }
+              session['room'] = roomName;
             }
 
             dayTabView.add(
@@ -66,7 +79,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
                       shadowColor: Colors.red,
                       child: Center(
                         child: Text(
-                          "Day: ${i + 1}",
+                          "${locData.day} ${i + 1}",
                           style: const TextStyle(fontSize: 20),
                           textAlign: TextAlign.center,
                         ),
@@ -99,10 +112,10 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   height: 70,
                   child: Card(
                     shadowColor: Colors.red,
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        "Favorites",
-                        style: TextStyle(fontSize: 20),
+                        locData.favorites,
+                        style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -128,10 +141,10 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   height: 70,
                   child: Card(
                     shadowColor: Colors.red,
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        "My Questions",
-                        style: TextStyle(fontSize: 20),
+                        locData.my_questions,
+                        style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -146,9 +159,6 @@ class _ProgramScreenState extends State<ProgramScreen> {
               },
             ),
           );
-
-         
-          
         }
       },
     );
@@ -156,6 +166,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
     if (_apiData == null) {
       return Scaffold(
         body: Center(
@@ -167,11 +178,11 @@ class _ProgramScreenState extends State<ProgramScreen> {
                   border: Border.all(),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "DATA IS LOADING",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                    locData.load,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
                   ),
                 ),
               ),

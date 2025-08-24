@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
+import '../l10n/app_localizations.dart' as loc;
 // Import the new screen
 
 class SessionContainer extends StatefulWidget {
@@ -157,7 +158,7 @@ class _SessionContainerState extends State<SessionContainer> {
     final titleBgColor = !isFirst ? Colors.white : Colors.grey.shade300;
     final speakers = (item["speakers"] is List) ? item["speakers"] : [];
     final bool isSessionFav = isFavoriteSession(item['id'].toString());
-
+    final locData = loc.AppLocalizations.of(context)!;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -285,14 +286,14 @@ class _SessionContainerState extends State<SessionContainer> {
                                                 }).toList(),
                                               )
                                             else if (!isFirst)
-                                              const Text(
-                                                  "No speakers for this session."),
+                                               Text(
+                                                  locData.not_scheduled),
                                           ],
                                         ),
                                       ),
                                       actions: [
                                         TextButton(
-                                          child: const Text("Ask a Question"),
+                                          child:  Text(locData.askQuestion),
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                             Navigator.pushNamed(
@@ -306,7 +307,7 @@ class _SessionContainerState extends State<SessionContainer> {
                                           },
                                         ),
                                         TextButton(
-                                          child: const Text("Close"),
+                                          child:  Text(locData.close),
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
                                         ),
@@ -342,7 +343,13 @@ class _SessionContainerState extends State<SessionContainer> {
                     Padding(
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
-                        item['place_pl'] != "" ? item['place_pl'] : 'OPEN STAGE',
+                        Localizations.localeOf(context).languageCode == 'pl'
+                            ? (item['place_pl']?.isNotEmpty == true
+                                ? item['place_pl']
+                                : locData.open_stage)
+                            : (item['place_en']?.isNotEmpty == true
+                                ? item['place_en']
+                                : locData.open_stage),
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 12,
@@ -382,7 +389,7 @@ class _SessionContainerState extends State<SessionContainer> {
                                               Expanded(
                                                 child: Text(
                                                   speaker['name'] ??
-                                                      'Unknown Speaker',
+                                                      locData.unknown_speaker,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
@@ -436,7 +443,7 @@ class _SessionContainerState extends State<SessionContainer> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      speaker["name"] ?? "Unknown",
+                                      speaker["name"] ?? locData.unknown_speaker,
                                       style: const TextStyle(
                                         decoration: TextDecoration.underline,
                                       ),

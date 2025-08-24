@@ -1,9 +1,8 @@
-// person_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:pt_25_artro_test/widgets/image_finder.dart';
 import 'package:pt_25_artro_test/cached_request.dart';
 import 'package:html_unescape/html_unescape.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class PersonDetailScreen extends StatefulWidget {
   final dynamic speaker;
@@ -23,7 +22,9 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   void initState() {
     super.initState();
     _findImage();
-    _loadSessions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadSessions(context);
+    });
   }
 
   Future<void> _findImage() async {
@@ -31,31 +32,34 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     if (ImgPathWay != null) {
       setState(() {
         avatarUrl = ImgPathWay;
-        print("Found image path: $avatarUrl");
       });
     }
   }
 
-  Future<void> _loadSessions() async {
-    // Fetch the program data from the API endpoint
+  Future<void> _loadSessions(BuildContext context) async {
+    final locData = loc.AppLocalizations.of(context)!;
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    
     cachedRequest.readDataOrCached(
       endpoint: 'https://voteptartro.wisehub.pl/api/?action=get-program-flat',
       method: 'GET',
       onData: (data) {
         if (data != null) {
           final List<dynamic> allSessions = [];
-          // Extract all sessions from all days
           data.forEach((key, value) {
             if (key.startsWith('day') && !key.contains('rooms')) {
               final dayNumber = int.parse(key.replaceAll('day', '')) + 1;
 
               final sessionsWithDayAndRoom = (value as List).map((session) {
-                String roomName = session['place_en']?.isNotEmpty == true
-                    ? session['place_en']
-                    : session['place_pl'];
+                String roomName;
+                if (currentLocale == 'pl') {
+                  roomName = session['place_pl'] ?? '';
+                } else {
+                  roomName = session['place_en'] ?? '';
+                }
 
                 if (roomName.isEmpty) {
-                  roomName = "Open Stage";
+                  roomName = locData.open_stage;
                 }
 
                 return {
@@ -68,7 +72,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
             }
           });
 
-          // Filter for sessions where the current speaker is present
           final speakerSessions = allSessions.where((session) {
             final speakersInSession = session['speakers'] as List<dynamic>?;
             if (speakersInSession == null) {
@@ -88,7 +91,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
     );
   }
 
-  // Color palette for light mode
   static const backgroundColor = Color(0xFFF0F2F5);
   static const cardColor = Colors.white;
   static const accentColor = Color(0xFFE4287C);
@@ -96,7 +98,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
   static const secondaryTextColor = Color(0xFF6B6B7C);
   static const tertiaryTextColor = Color(0xFFB0B0C0);
 
-  // Widget to display an info row with an icon, label, and value
   Widget infoRow(IconData icon, String label, String? value) {
     if (value == null || value.trim().isEmpty) return const SizedBox.shrink();
 
@@ -138,14 +139,19 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    final isPolish = currentLocale == 'pl';
+    final speaker = widget.speaker;
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: cardColor,
         elevation: 1,
-        title: const Text(
-          "Speaker Details",
-          style: TextStyle(color: primaryTextColor),
+        title: Text(
+          locData.speaker_details,
+          style: const TextStyle(color: primaryTextColor),
         ),
         iconTheme: const IconThemeData(color: primaryTextColor),
       ),
@@ -155,7 +161,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Avatar with glowing border and loading indicator
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -169,6 +174,7 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                           color: accentColor.withOpacity(0.3),
                           blurRadius: 15,
                           spreadRadius: 2,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -204,9 +210,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              // Name and title
               Text(
-                "${widget.speaker['name'] ?? ''} ".trim(),
+                "${speaker['name'] ?? ''} ".trim(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 26,
@@ -214,12 +219,13 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   color: primaryTextColor,
                 ),
               ),
-              if (widget.speaker['titleEn'] != null &&
-                  widget.speaker['titleEn'].toString().trim().isNotEmpty)
+              if (isPolish
+                  ? (speaker['titlePl'] != null && speaker['titlePl'].toString().trim().isNotEmpty)
+                  : (speaker['titleEn'] != null && speaker['titleEn'].toString().trim().isNotEmpty))
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    widget.speaker['titleEn'],
+                    isPolish ? speaker['titlePl'] : speaker['titleEn'],
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
@@ -229,7 +235,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   ),
                 ),
               const SizedBox(height: 32),
-              // Info container
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -247,21 +252,23 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    infoRow(Icons.work_outline, "Workplace", widget.speaker['workplace']),
+                    infoRow(Icons.work_outline, locData.workplace, speaker['workplace']),
                     infoRow(
                       Icons.location_on_outlined,
-                      "Location",
-                      "${widget.speaker['city'] ?? ''}${(widget.speaker['city'] != null && widget.speaker['countryEn'] != null) ? ', ' : ''}${widget.speaker['countryEn'] ?? ''}",
+                      locData.location,
+                      isPolish
+                          ? "${speaker['city'] ?? ''}${(speaker['city'] != null && speaker['countryPl'] != null) ? ', ' : ''}${speaker['countryPl'] ?? ''}"
+                          : "${speaker['city'] ?? ''}${(speaker['city'] != null && speaker['countryEn'] != null) ? ', ' : ''}${speaker['countryEn'] ?? ''}",
                     ),
-                    infoRow(Icons.group_outlined, "Memberships", widget.speaker['member']),
-                    infoRow(Icons.map_outlined, "Zones", widget.speaker['zones']),
+                    infoRow(Icons.group_outlined, locData.member_of, speaker['member']),
+                    infoRow(Icons.map_outlined, locData.zones, speaker['zones']),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
-              // Biography container
-              if (widget.speaker['bioEn'] != null &&
-                  (widget.speaker['bioEn'] as String).isNotEmpty)
+              if (isPolish
+                  ? (speaker['bioPl'] != null && (speaker['bioPl'] as String).isNotEmpty)
+                  : (speaker['bioEn'] != null && (speaker['bioEn'] as String).isNotEmpty))
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -280,9 +287,9 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Biography",
-                        style: TextStyle(
+                      Text(
+                        locData.biography,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: accentColor,
@@ -290,7 +297,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        unescape.convert((widget.speaker['bioEn'] ?? '').replaceAll('[n]', '\n')),
+                        unescape.convert((isPolish ? speaker['bioPl'] : speaker['bioEn'])
+                            .replaceAll('[n]', '\n')),
                         style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 15,
@@ -300,7 +308,6 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                     ],
                   ),
                 ),
-              // Sessions container
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -318,9 +325,9 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Sessions",
-                      style: TextStyle(
+                    Text(
+                      locData.lectures,
+                      style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: accentColor,
@@ -330,19 +337,22 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                     if (_isLoadingSessions)
                       const Center(child: CircularProgressIndicator())
                     else if (_speakerSessions.isEmpty)
-                      const Text(
-                        "This speaker is not scheduled for any sessions.",
-                        style: TextStyle(
+                      Text(
+                        locData.not_scheduled,
+                        style: const TextStyle(
                           color: secondaryTextColor,
                           fontSize: 15,
                         ),
                       )
                     else
                       ..._speakerSessions.map((session) {
+                        String sessionTitle = isPolish
+                            ? (session['title_pl'] ?? '')
+                            : (session['title_en'] ?? '');
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               border: Border(
                                 left: BorderSide(color: accentColor, width: 4),
                               ),
@@ -351,9 +361,8 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Title of the session
                                 Text(
-                                  unescape.convert(session['title_pl'] ?? ''),
+                                  unescape.convert(sessionTitle),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -361,15 +370,13 @@ class _PersonDetailScreenState extends State<PersonDetailScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                // Day and Time
                                 Text(
-                                  "Day ${session['day']}: ${session['start_time']} - ${session['end_time']}",
+                                  "${locData.day} ${session['day']}: ${session['start_time']} - ${session['end_time']}",
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: secondaryTextColor,
                                   ),
                                 ),
-                                // Room number, if available
                                 if (session['room'] != null && session['room'].isNotEmpty)
                                   Text(
                                     "${session['room']}",

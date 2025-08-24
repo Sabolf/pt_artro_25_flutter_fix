@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:pt_25_artro_test/widgets/user_card.dart';
 import 'person_detail_screen.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -73,15 +74,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("Favorites")),
+      appBar: AppBar(title:  Text(locData.favorites)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (favoriteSessions.isNotEmpty) ...[
-              const Text("Favorite Sessions",
+              Text(locData.favorite_sessions,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ...favoriteSessions.map((session) {

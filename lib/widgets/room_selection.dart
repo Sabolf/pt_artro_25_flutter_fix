@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../l10n/app_localizations.dart' as loc;
 class RoomSelection extends StatefulWidget {
   final int numberOfButtons;
   final void Function(int)? onRoomSelected;
@@ -58,6 +58,8 @@ class _RoomSelectionState extends State<RoomSelection> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
+
     // Define consistent colors and styles
     const Color primaryColor = Color.fromARGB(255, 107, 19, 58);
     const Color selectedBackgroundColor = Color.fromARGB(255, 255, 201, 201);
@@ -69,7 +71,7 @@ class _RoomSelectionState extends State<RoomSelection> {
       final bool isAllButton = index == widget.numberOfButtons;
       
       // Determine the button text
-      final String buttonText = isAllButton ? 'All' : 'Room ${index + 1}';
+      final String buttonText = isAllButton ? locData.all : '${locData.room} ${index + 1}';
 
       return Expanded(
         child: Padding(

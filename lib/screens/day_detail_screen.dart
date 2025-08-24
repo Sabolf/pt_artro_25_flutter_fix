@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/room_selection.dart';
 import '../widgets/session_container.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class DayDetailScreen extends StatefulWidget {
   // A final variable to hold all the session data for the day.
@@ -113,10 +114,11 @@ class _DayDetailScreenState extends State<DayDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
     // The main layout of the screen is a Scaffold.
     return Scaffold(
       // The AppBar provides the title for the screen.
-      appBar: AppBar(title: Text("DAY DETAILS")),
+      appBar: AppBar(title: Text(locData.day_detail)),
       // A Column arranges its children vertically.
       body: Column(
         children: [

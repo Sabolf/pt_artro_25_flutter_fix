@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class SponsorsScreen extends StatelessWidget {
   const SponsorsScreen({super.key});
@@ -34,6 +35,7 @@ class SponsorsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Manually add your sponsors here, grouped by level
+    final locData = loc.AppLocalizations.of(context)!;
     final goldSponsors = [
       {
         "name": "Gold Sponsor 1",
@@ -111,17 +113,17 @@ class SponsorsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              sectionHeader("Gold Sponsors"),
+              sectionHeader(locData.sponsor_diamond),
               buildSponsorGrid(goldSponsors),
 
               const SizedBox(height: 24),
 
-              sectionHeader("Silver Sponsors"),
+              sectionHeader(locData.sponsor_platinium),
               buildSponsorGrid(silverSponsors),
 
               const SizedBox(height: 24),
 
-              sectionHeader("Bronze Sponsors"),
+              sectionHeader(locData.sponsor_exhibitor),
               buildSponsorGrid(bronzeSponsors),
             ],
           ),

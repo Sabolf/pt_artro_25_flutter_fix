@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class MyQuestionsScreen extends StatefulWidget {
   const MyQuestionsScreen({super.key});
@@ -40,16 +41,17 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
     if (_isLoading) {
       return  Scaffold(
-        appBar: AppBar(title: Text("My Questions")),
+        appBar: AppBar(title: Text(locData.my_questions)),
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_askedQuestions.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text("My Questions")),
+        appBar: AppBar(title: Text(locData.my_questions)),
         body: const Center(
           child: Text(
             "You haven't asked any questions yet.",
@@ -61,7 +63,7 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text("My Questions")),
+      appBar: AppBar(title: Text(locData.my_questions)),
       body: ListView.builder(
         itemCount: _askedQuestions.length,
         itemBuilder: (context, index) {

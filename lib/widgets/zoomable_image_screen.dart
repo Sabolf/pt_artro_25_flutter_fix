@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class ZoomableImageScreen extends StatelessWidget {
   const ZoomableImageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
+
     // Define the new, consistent color palette
     const backgroundColor = Color(0xFF1A1A2E); // A dark, rich blue-purple
-    const cardColor = Color(0xFF2E2E4E);      // A slightly lighter shade for cards
-    const accentColor = Color(0xFFE4287C);    // The original vibrant pink
+    const cardColor = Color(0xFF2E2E4E); // A slightly lighter shade for cards
+    const accentColor = Color(0xFFE4287C); // The original vibrant pink
     const primaryTextColor = Colors.white;
-    const secondaryTextColor = Color(0xFFB0B0C4); // A light grey for secondary text
+    const secondaryTextColor = Color(
+      0xFFB0B0C4,
+    ); // A light grey for secondary text
     const mutedIconColor = Color(0xFFB0B0C4); // Lighter icons for contrast
-    
+
     // Widget to display a hotel card
     Widget hotelCard({
       required String name,
@@ -48,7 +53,7 @@ class ZoomableImageScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            
+
             // Address and distance
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,22 +67,26 @@ class ZoomableImageScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.directions_walk, color: mutedIconColor, size: 16),
+                const Icon(
+                  Icons.directions_walk,
+                  color: mutedIconColor,
+                  size: 16,
+                ),
                 const SizedBox(width: 4),
                 Text(
-                  "$distance away",
+                  "$distance ${locData.away}",
                   style: const TextStyle(color: secondaryTextColor),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Prices list
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Prices per night:",
+                 Text(
+                  locData.price_per_night,
                   style: TextStyle(
                     color: primaryTextColor,
                     fontWeight: FontWeight.w600,
@@ -90,7 +99,11 @@ class ZoomableImageScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.arrow_right, color: accentColor, size: 18),
+                        const Icon(
+                          Icons.arrow_right,
+                          color: accentColor,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -108,13 +121,16 @@ class ZoomableImageScreen extends StatelessWidget {
         ),
       );
     }
-    
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text(
-          'Accommodation',
-          style: TextStyle(color: primaryTextColor, fontWeight: FontWeight.bold),
+        title: Text(
+          locData.accommodation,
+          style: TextStyle(
+            color: primaryTextColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: cardColor,
         elevation: 0,
@@ -149,11 +165,11 @@ class ZoomableImageScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Caption text
-          const Center(
+           Center(
             child: Text(
-              "Double tap or pinch to zoom",
+              locData.double_tap,
               style: TextStyle(
                 color: secondaryTextColor,
                 fontSize: 14,
@@ -161,14 +177,14 @@ class ZoomableImageScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Accommodation list header
-          const Padding(
+           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              "Hotels Near ICE Krakow",
+              locData.near_hotel,
               style: TextStyle(
                 color: primaryTextColor,
                 fontSize: 20,
@@ -176,12 +192,15 @@ class ZoomableImageScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Accommodation info scrollable list
           Expanded(
             flex: 5,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: ListView(
                 children: [
                   hotelCard(
@@ -189,9 +208,12 @@ class ZoomableImageScreen extends StatelessWidget {
                     address: "ul. Monte Cassino 2, 30-337 Kraków",
                     distance: "50m",
                     prices: [
-                      {"label": "Single room", "value": "890.00 PLN/night"},
-                      {"label": "Double room", "value": "940.00 PLN/night"},
-                      {"label": "Place in a double room", "value": "470.00 PLN/night"},
+                      {"label":  locData.single_room, "value": "890${locData.decimal}00 PLN/${locData.night}"},
+                      {"label":  locData.double_room, "value": "940${locData.decimal}00 PLN/${locData.night}"},
+                      {
+                        "label": "Place in a double room",
+                        "value": "470${locData.decimal}00 PLN/${locData.night}",
+                      },
                     ],
                   ),
                   hotelCard(
@@ -199,10 +221,22 @@ class ZoomableImageScreen extends StatelessWidget {
                     address: "ul. Wygrana 6, 30-311 Kraków",
                     distance: "30m",
                     prices: [
-                      {"label": "STANDARD Single room", "value": "780.00 PLN/night"},
-                      {"label": "STANDARD Double room", "value": "880.00 PLN/night"},
-                      {"label": "STANDARD Place in a double room", "value": "440.00 PLN/night"},
-                      {"label": "EXECUTIVE Single room", "value": "930.00 PLN/night"},
+                      {
+                        "label": "STANDARD Single room",
+                        "value": "780${locData.decimal}00 PLN/${locData.night}",
+                      },
+                      {
+                        "label": "STANDARD Double room",
+                        "value": "880${locData.decimal}00 PLN/${locData.night}",
+                      },
+                      {
+                        "label": "STANDARD Place in a double room",
+                        "value": "440${locData.decimal}00 PLN/${locData.night}",
+                      },
+                      {
+                        "label": "EXECUTIVE Single room",
+                        "value": "930${locData.decimal}00 PLN/${locData.night}",
+                      },
                     ],
                   ),
                   hotelCard(
@@ -210,9 +244,12 @@ class ZoomableImageScreen extends StatelessWidget {
                     address: "ul. Marii Konopnickiej 33, 30-302 Kraków",
                     distance: "500m",
                     prices: [
-                      {"label": "Single room", "value": "684.00 PLN/night"},
-                      {"label": "Double room", "value": "743.00 PLN/night"},
-                      {"label": "Place in a double room", "value": "371.50 PLN/night"},
+                      {"label":  locData.single_room, "value": "684${locData.decimal}00 PLN/${locData.night}"},
+                      {"label":  locData.double_room, "value": "743${locData.decimal}00 PLN/${locData.night}"},
+                      {
+                        "label": "Place in a double room",
+                        "value": "371${locData.decimal}50 PLN/${locData.night}",
+                      },
                     ],
                   ),
                   hotelCard(
@@ -220,9 +257,12 @@ class ZoomableImageScreen extends StatelessWidget {
                     address: "ul. Monte Cassino 1, 30-337 Kraków",
                     distance: "200m",
                     prices: [
-                      {"label": "Single room", "value": "473.00 PLN/night"},
-                      {"label": "Double room", "value": "522.00 PLN/night"},
-                      {"label": "Place in a double room", "value": "261.00 PLN/night"},
+                      {"label": locData.single_room, "value": "473${locData.decimal}00 PLN/${locData.night}"},
+                      {"label":  locData.double_room, "value": "522${locData.decimal}00 PLN/${locData.night}"},
+                      {
+                        "label": "Place in a double room",
+                        "value": "261${locData.decimal}00 PLN/${locData.night}",
+                      },
                     ],
                   ),
                   const SizedBox(height: 24),

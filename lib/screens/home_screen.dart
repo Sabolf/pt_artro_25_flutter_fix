@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../widgets/expandable_text.dart';
 import '../widgets/user_card.dart';
 import 'person_detail_screen.dart';
+import '../l10n/app_localizations.dart' as loc;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -152,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locData = loc.AppLocalizations.of(context)!;
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -164,10 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: CustomExpandableText(
-                leadPart:
-                    "We are delighted to invite you to the 6th Polish Arthroscopy Society Congress, which will be held from October 15th to 17th, 2025, in the culturally rich city of Kraków. This event promises to be a perfect blend of modern science and history, set against the backdrop of our national heritage – A Historic Center for Modern Arthroscopic Excellence.",
-                extendedPart:
-                    "\n\nThe Congress provides an exceptional opportunity to explore the latest advances in arthroscopy and joint preservation surgery. Our program includes plenary lectures, scientific sessions, workshops, and presentations by leading experts from around the world. This time, we are honored to have the Romanian Arthroscopic Society as our guest society. We look forward to three enriching days of scientific discovery, professional exchange, and friendship. The Congress will serve as a valuable platform for international experts, including surgeons, physiotherapists, nurses, and medical trainers, to share their experiences From Research to Practice – basic science, through surgery to rehabilitation. The venue is the modern ICE Kraków Congress Center, located in the heart of the city, just across the Vistula River from Wawel Castle and the Old Town. Kraków is the home of the oldest university in Poland, where nearly 6,000 students currently acquire knowledge.",
+                leadPart: locData.invitation_lead,
+                extendedPart: locData.invitation_body,
               ),
             ),
             UserCard(
@@ -267,10 +267,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: InkWell(
                 onTap: () async {
                   final Uri url = Uri.parse('https://zjazd.ptartro.pl');
-                  if (await canLaunchUrl(url)){
+                  if (await canLaunchUrl(url)) {
                     await launchUrl(url);
-                  }
-                  else{
+                  } else {
                     throw 'can not launch $url';
                   }
                 },
@@ -286,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: SizedBox(
                     width: 250,
-                    child: Center(child: Text("Visit Website")),
+                    child: Center(child: Text(locData.goto_ptartro)),
                   ),
                 ),
               ),
