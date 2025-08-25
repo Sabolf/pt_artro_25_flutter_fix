@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart'; // 👈 add this
 import '../l10n/app_localizations.dart' as loc;
+
 class RoomSelection extends StatefulWidget {
   final int numberOfButtons;
   final void Function(int)? onRoomSelected;
@@ -23,7 +25,7 @@ class _RoomSelectionState extends State<RoomSelection> {
   void initState() {
     super.initState();
     widget.pageController?.addListener(_onPageChanged);
-    
+
     // Using a post-frame callback to ensure initial state is set
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _onTabTapped(_selectedIndex);
@@ -69,29 +71,36 @@ class _RoomSelectionState extends State<RoomSelection> {
     List<Widget> buttons = List.generate(widget.numberOfButtons + 1, (index) {
       final isSelected = _selectedIndex == index;
       final bool isAllButton = index == widget.numberOfButtons;
-      
+
       // Determine the button text
-      final String buttonText = isAllButton ? locData.all : '${locData.room} ${index + 1}';
+      final String buttonText =
+          isAllButton ? locData.all : '${locData.room} ${index + 1}';
 
       return Expanded(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: InkWell(
             onTap: () => _onTabTapped(index),
             borderRadius: BorderRadius.circular(45),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
               decoration: BoxDecoration(
                 border: Border.all(color: primaryColor),
                 borderRadius: BorderRadius.circular(45),
-                color: isSelected ? selectedBackgroundColor : unselectedBackgroundColor,
+                color: isSelected
+                    ? selectedBackgroundColor
+                    : unselectedBackgroundColor,
               ),
               child: Center(
-                child: Text(
+                child: AutoSizeText(
                   buttonText,
                   textAlign: TextAlign.center,
+                  maxLines: 1, // 👈 keeps text on a single line
+                  minFontSize: 8, // 👈 shrink down to at least 8px
                   style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                     color: isSelected ? primaryColor : Colors.black,
                   ),
                 ),
