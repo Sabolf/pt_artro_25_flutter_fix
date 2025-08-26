@@ -35,7 +35,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.1
 
-# 👇 App icon configuration
+# App icon configuration
 flutter_launcher_icons:
   android: true
   ios: true
@@ -45,8 +45,10 @@ flutter:
   uses-material-design: true
   generate: true
 
+  # The 'assets' key must be aligned with 'uses-material-design'
   assets:
+    # Asset paths must be indented by two spaces under 'assets'
     - assets/images/
     - assets/data/
-    
-    
+    - assets/image_paths.json
+    - assets/images/people/
