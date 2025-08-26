@@ -28,6 +28,7 @@ dependencies:
   dchs_flutter_beacon: ^0.6.4
   auto_size_text: ^3.0.0
   cupertino_icons: ^1.0.8
+  flutter_blue_plus: ^1.29.0 # Use the latest version
 
 dev_dependencies:
   flutter_test:
@@ -52,3 +53,4 @@ flutter:
     - assets/data/
     - assets/image_paths.json
     - assets/images/people/
+    - assets/images/placeholder_image.png
