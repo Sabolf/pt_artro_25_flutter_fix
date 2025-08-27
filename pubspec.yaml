@@ -22,6 +22,7 @@ dependencies:
   url_launcher: ^6.2.1
   photo_view: ^0.15.0
   html_unescape: ^2.0.0
+  html: ^0.15.0 # Add this line
   path: ^1.8.1
   webview_flutter: ^4.2.2
   audioplayers: 6.5.0
@@ -51,6 +52,7 @@ flutter:
     # Asset paths must be indented by two spaces under 'assets'
     - assets/images/
     - assets/data/
+    - assets/images/logo/
     - assets/image_paths.json
     - assets/images/people/
     - assets/images/placeholder_image.png

@@ -7,12 +7,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/user_card.dart';
 import '../screens/person_detail_screen.dart';
 import '../l10n/app_localizations.dart' as loc;
+import '../utils/string_utils.dart';
+
 // Import the new screen
 
 class SessionContainer extends StatefulWidget {
+  //Big Container
   final List<dynamic> sessionContainer;
+  //Call back with List argument
   final Function(List<dynamic>)? onSpeakerTap;
+  //background color of container
   final Color? backgroundColor;
+  //Name of container
   final String? roomName;
 
   const SessionContainer({
@@ -28,8 +34,11 @@ class SessionContainer extends StatefulWidget {
 }
 
 class _SessionContainerState extends State<SessionContainer> {
+  //All speakers
   List<dynamic> allSpeakers = [];
+  //Favorite Speakers
   List<Map<String, dynamic>> favoriteSpeakers = [];
+  //Favorite Sessions
   List<Map<String, dynamic>> favoriteSessions = [];
   bool isLoading = true;
 
@@ -42,8 +51,10 @@ class _SessionContainerState extends State<SessionContainer> {
 
   Future<void> loadPeopleJson() async {
     try {
-      final String peopleString =
-          await rootBundle.loadString('assets/data/people.json');
+      final String peopleString = await rootBundle.loadString(
+        'assets/data/people.json',
+      );
+
       final List<dynamic> peopleJson = jsonDecode(peopleString);
       setState(() {
         allSpeakers = peopleJson;
@@ -59,11 +70,15 @@ class _SessionContainerState extends State<SessionContainer> {
     final prefs = await SharedPreferences.getInstance();
     final favSpeakersString = prefs.getString('favoriteSpeakers') ?? '[]';
     final favSessionsString = prefs.getString('favoriteSessions') ?? '[]';
-    
+
     try {
       setState(() {
-        favoriteSpeakers = List<Map<String, dynamic>>.from(jsonDecode(favSpeakersString));
-        favoriteSessions = List<Map<String, dynamic>>.from(jsonDecode(favSessionsString));
+        favoriteSpeakers = List<Map<String, dynamic>>.from(
+          jsonDecode(favSpeakersString),
+        );
+        favoriteSessions = List<Map<String, dynamic>>.from(
+          jsonDecode(favSessionsString),
+        );
       });
     } catch (e) {
       print("Error decoding favorites: $e");
@@ -77,8 +92,9 @@ class _SessionContainerState extends State<SessionContainer> {
   Future<void> toggleFavoriteSpeaker(Map<String, dynamic> speaker) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      final existingIndex = favoriteSpeakers
-          .indexWhere((s) => s['id'].toString() == speaker['id'].toString());
+      final existingIndex = favoriteSpeakers.indexWhere(
+        (s) => s['id'].toString() == speaker['id'].toString(),
+      );
 
       if (existingIndex >= 0) {
         favoriteSpeakers.removeAt(existingIndex);
@@ -86,14 +102,15 @@ class _SessionContainerState extends State<SessionContainer> {
         favoriteSpeakers.add(speaker);
       }
     });
-
     await prefs.setString('favoriteSpeakers', jsonEncode(favoriteSpeakers));
   }
 
   Future<void> toggleFavoriteSession(Map<String, dynamic> session) async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      final index = favoriteSessions.indexWhere((s) => s['id'].toString() == session['id'].toString());
+      final index = favoriteSessions.indexWhere(
+        (s) => s['id'].toString() == session['id'].toString(),
+      );
       if (index >= 0) {
         favoriteSessions.removeAt(index);
       } else {
@@ -159,6 +176,10 @@ class _SessionContainerState extends State<SessionContainer> {
     final speakers = (item["speakers"] is List) ? item["speakers"] : [];
     final bool isSessionFav = isFavoriteSession(item['id'].toString());
     final locData = loc.AppLocalizations.of(context)!;
+
+    // Check if the session is sponsored by Arthrex
+    final bool isSponsoredByArthrex = item['sponsorArthrex'] == '1';
+
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -187,7 +208,10 @@ class _SessionContainerState extends State<SessionContainer> {
             flex: 3,
             child: Container(
               decoration: BoxDecoration(
-                color: titleBgColor,
+                // Conditionally set the background color to gold if sponsored
+                color: isSponsoredByArthrex
+                    ? Colors.amber.shade200
+                    : titleBgColor,
                 borderRadius: BorderRadius.circular(4),
               ),
               padding: const EdgeInsets.all(8),
@@ -217,25 +241,31 @@ class _SessionContainerState extends State<SessionContainer> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            if ((item['short_description_pl'] ?? '')
+                                            if ((item['short_description_pl'] ??
+                                                    '')
                                                 .isNotEmpty)
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                    bottom: 10),
+                                                  bottom: 10,
+                                                ),
                                                 child: Text(
-                                                  unescape.convert(item[
-                                                          'short_description_pl'] ??
-                                                      ''),
-                                                  style:
-                                                      const TextStyle(fontSize: 14),
+                                                  unescape.convert(
+                                                    item['short_description_pl'] ??
+                                                        '',
+                                                  ),
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                               ),
                                             if (speakers.isNotEmpty)
                                               Column(
-                                                children: speakers
-                                                    .map<Widget>((speaker) {
+                                                children: speakers.map<Widget>((
+                                                  speaker,
+                                                ) {
                                                   dynamic tmpPerson;
-                                                  for (var person in allSpeakers) {
+                                                  for (var person
+                                                      in allSpeakers) {
                                                     if (person['id'] ==
                                                         speaker['symbol']) {
                                                       tmpPerson = person;
@@ -245,12 +275,18 @@ class _SessionContainerState extends State<SessionContainer> {
                                                   if (tmpPerson == null) {
                                                     return const SizedBox();
                                                   }
-                                                  bool isFav = isFavoriteSpeaker(
-                                                      speaker['symbol'].toString());
+                                                  bool isFav =
+                                                      isFavoriteSpeaker(
+                                                        speaker['symbol']
+                                                            .toString(),
+                                                      );
                                                   return ListTile(
-                                                    contentPadding: EdgeInsets.zero,
-                                                    title: Text(speaker["name"] ??
-                                                        "Unknown"),
+                                                    contentPadding:
+                                                        EdgeInsets.zero,
+                                                    title: Text(
+                                                      speaker["name"] ??
+                                                          "Unknown",
+                                                    ),
                                                     trailing: IconButton(
                                                       icon: Icon(
                                                         isFav
@@ -262,9 +298,11 @@ class _SessionContainerState extends State<SessionContainer> {
                                                       ),
                                                       onPressed: () {
                                                         toggleFavoriteSpeaker(
-                                                                Map<String, dynamic>.from(
-                                                                    tmpPerson))
-                                                            .then((_) {
+                                                          Map<
+                                                            String,
+                                                            dynamic
+                                                          >.from(tmpPerson),
+                                                        ).then((_) {
                                                           setState(() {});
                                                           setStateDialog(() {});
                                                         });
@@ -277,8 +315,9 @@ class _SessionContainerState extends State<SessionContainer> {
                                                         MaterialPageRoute(
                                                           builder: (context) =>
                                                               PersonDetailScreen(
-                                                            speaker: tmpPerson,
-                                                          ),
+                                                                speaker:
+                                                                    tmpPerson,
+                                                              ),
                                                         ),
                                                       );
                                                     },
@@ -286,28 +325,102 @@ class _SessionContainerState extends State<SessionContainer> {
                                                 }).toList(),
                                               )
                                             else if (!isFirst)
-                                               Text(
-                                                  locData.not_scheduled),
+                                              Text(locData.not_scheduled),
                                           ],
                                         ),
                                       ),
                                       actions: [
+                                        Row(
+                                          children: [
+                                            isSponsoredByArthrex
+                                                ? Card(
+                                                    shadowColor: Colors.yellow,
+                                                    elevation: 10,
+                                                    surfaceTintColor:
+                                                        Colors.white,
+                                                    color:
+                                                        Colors.amber.shade200,
+                                                    child: Row(
+                                                      children: [
+                                                        TextButton(
+                                                          child: Text(
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                            "${locData.submit_attendance}",
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                              context,
+                                                            ).pop();
+                                                            Navigator.pushNamed(
+                                                              context,
+                                                              '/askQuestion',
+                                                              arguments: {
+                                                                'details':
+                                                                    Map<
+                                                                      String,
+                                                                      dynamic
+                                                                    >.from(
+                                                                      item,
+                                                                    ),
+                                                                'day': item['day']
+                                                                    .toString(),
+                                                                'submission':
+                                                                    true,
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Image.asset(
+                                                            "assets/images/logo/arthrex-icon.png",
+                                                            scale: 3,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Text(""),
+                                          ],
+                                        ),
                                         TextButton(
-                                          child:  Text(locData.askQuestion),
+                                          child: Text(
+                                            "${locData.askQuestion}",
+                                            textAlign: TextAlign.left,
+                                            style: TextStyle(
+                                              color: Color(0xFFA8415B),
+                                            ),
+                                          ),
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                             Navigator.pushNamed(
                                               context,
                                               '/askQuestion',
                                               arguments: {
-                                                'details': Map<String, dynamic>.from(item),
+                                                'details':
+                                                    Map<String, dynamic>.from(
+                                                      item,
+                                                    ),
                                                 'day': item['day'].toString(),
+                                                'submission': false,
                                               },
                                             );
                                           },
                                         ),
                                         TextButton(
-                                          child:  Text(locData.close),
+                                          child: Text(
+                                            locData.close,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Color(0xFFA8415B),
+                                            ),
+                                          ),
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
                                         ),
@@ -326,13 +439,21 @@ class _SessionContainerState extends State<SessionContainer> {
                           ),
                         ),
                       ),
+                      isSponsoredByArthrex
+                          ? Image.asset(alignment: Alignment.topLeft,
+                              "assets/images/logo/arthrex-icon.png",
+                              scale: 3,
+                            )
+                          : const SizedBox.shrink(),
                       IconButton(
                         icon: Icon(
                           isSessionFav ? Icons.star : Icons.star_border,
                           color: isSessionFav ? Colors.amber : Colors.grey,
                         ),
                         onPressed: () {
-                          toggleFavoriteSession(Map<String, dynamic>.from(item)).then((_) {
+                          toggleFavoriteSession(
+                            Map<String, dynamic>.from(item),
+                          ).then((_) {
                             setState(() {});
                           });
                         },
@@ -345,11 +466,11 @@ class _SessionContainerState extends State<SessionContainer> {
                       child: Text(
                         Localizations.localeOf(context).languageCode == 'pl'
                             ? (item['place_pl']?.isNotEmpty == true
-                                ? item['place_pl']
-                                : locData.open_stage)
+                                  ? item['place_pl']
+                                  : locData.open_stage)
                             : (item['place_en']?.isNotEmpty == true
-                                ? item['place_en']
-                                : locData.open_stage),
+                                  ? item['place_en']
+                                  : locData.open_stage),
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 12,
@@ -377,7 +498,9 @@ class _SessionContainerState extends State<SessionContainer> {
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    bool isFav = isFavoriteSpeaker(speaker['symbol'].toString());
+                                    bool isFav = isFavoriteSpeaker(
+                                      speaker['symbol'].toString(),
+                                    );
 
                                     return StatefulBuilder(
                                       builder: (context, setStateDialog) {
@@ -405,14 +528,16 @@ class _SessionContainerState extends State<SessionContainer> {
                                                 ),
                                                 onPressed: () {
                                                   toggleFavoriteSpeaker(
-                                                          Map<String, dynamic>.from(
-                                                              tmpPerson))
-                                                      .then((_) {
+                                                    Map<String, dynamic>.from(
+                                                      tmpPerson,
+                                                    ),
+                                                  ).then((_) {
                                                     setState(() {});
                                                     setStateDialog(() {
                                                       isFav = isFavoriteSpeaker(
-                                                          speaker['symbol']
-                                                              .toString());
+                                                        speaker['symbol']
+                                                            .toString(),
+                                                      );
                                                     });
                                                   });
                                                 },
@@ -427,8 +552,8 @@ class _SessionContainerState extends State<SessionContainer> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       PersonDetailScreen(
-                                                    speaker: tmpPerson,
-                                                  ),
+                                                        speaker: tmpPerson,
+                                                      ),
                                                 ),
                                               );
                                             },
@@ -443,18 +568,23 @@ class _SessionContainerState extends State<SessionContainer> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      speaker["name"] ?? locData.unknown_speaker,
+                                      speaker["name"] ??
+                                          locData.unknown_speaker,
                                       style: const TextStyle(
                                         decoration: TextDecoration.underline,
                                       ),
                                     ),
                                   ),
                                   Icon(
-                                    isFavoriteSpeaker(speaker['symbol'].toString())
+                                    isFavoriteSpeaker(
+                                          speaker['symbol'].toString(),
+                                        )
                                         ? Icons.star
                                         : Icons.star_border,
-                                    color: isFavoriteSpeaker(
-                                            speaker['symbol'].toString())
+                                    color:
+                                        isFavoriteSpeaker(
+                                          speaker['symbol'].toString(),
+                                        )
                                         ? Colors.amber
                                         : Colors.grey,
                                     size: 18,

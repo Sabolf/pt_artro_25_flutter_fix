@@ -751,6 +751,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown Speaker'**
   String get unknown_speaker;
+
+  /// No description provided for @submit_attendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Attendance'**
+  String get submit_attendance;
+
+  /// No description provided for @consent_header.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent For Attendance'**
+  String get consent_header;
+
+  /// No description provided for @recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'I consent to have my attendance recorded for this session.'**
+  String get recorded;
+
+  /// No description provided for @enter_your_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter you question here...'**
+  String get enter_your_question;
 }
 
 class _AppLocalizationsDelegate

@@ -115,7 +115,7 @@ class _MainScreenState extends State<MainScreen> {
     if (result == null) return; // IF NULL JUST EXIT 
 
     if (result.contains("SPONSOR:ARTHREX")) { //ARTHREX IS SPONSOR then
-      _selectTab(7, fromDrawer: false); // GO TO ARTHREX TAB
+      _selectTab(6, fromDrawer: false); // GO TO ARTHREX TAB
     } else {
       ScaffoldMessenger.of( // TEMP MESSAGE WILL SHOW 
         context, //CONTEXT REQUIRED

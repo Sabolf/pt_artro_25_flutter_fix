@@ -350,4 +350,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get unknown_speaker => 'Nieznany Mówca';
+
+  @override
+  String get submit_attendance => 'Prześlij Obecność';
+
+  @override
+  String get consent_header => 'Zgoda Na Obecność';
+
+  @override
+  String get recorded =>
+      'Wyrażam zgodę na zarejestrowanie mojej obecności na tej sesji.';
+
+  @override
+  String get enter_your_question => 'Wpisz tutaj swoje pytanie...';
 }

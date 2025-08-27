@@ -108,5 +108,9 @@
     "workplace": "Miejsce Pracy",
     "biography": "Biografia",
     "not_scheduled": "Ten mówca nie jest zaplanowany na żadne sesje.",
-    "unknown_speaker": "Nieznany Mówca"
+    "unknown_speaker": "Nieznany Mówca",
+    "submit_attendance" : "Prześlij Obecność",
+    "consent_header" : "Zgoda Na Obecność",
+    "recorded" : "Wyrażam zgodę na zarejestrowanie mojej obecności na tej sesji.",
+    "enter_your_question" : "Wpisz tutaj swoje pytanie..."
 }

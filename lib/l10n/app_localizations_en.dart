@@ -348,4 +348,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknown_speaker => 'Unknown Speaker';
+
+  @override
+  String get submit_attendance => 'Submit Attendance';
+
+  @override
+  String get consent_header => 'Consent For Attendance';
+
+  @override
+  String get recorded =>
+      'I consent to have my attendance recorded for this session.';
+
+  @override
+  String get enter_your_question => 'Enter you question here...';
 }
