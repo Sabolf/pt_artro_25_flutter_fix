@@ -775,6 +775,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter you question here...'**
   String get enter_your_question;
+
+  /// No description provided for @sponsored_sesh.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsored Lecture'**
+  String get sponsored_sesh;
 }
 
 class _AppLocalizationsDelegate

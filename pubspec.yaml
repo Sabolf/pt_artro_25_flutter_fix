@@ -1,3 +1,4 @@
+
 name: pt_25_artro_test
 description: "A new Flutter project."
 publish_to: "none"
@@ -30,6 +31,7 @@ dependencies:
   auto_size_text: ^3.0.0
   cupertino_icons: ^1.0.8
   flutter_blue_plus: ^1.29.0 # Use the latest version
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -37,7 +39,18 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.1
 
-# App icon configuration
+# ----------------- Splash screen configuration -----------------
+# This section configures the image that appears on the splash screen when the app starts.
+flutter_native_splash:
+  color: '#ffffff'
+  image: "assets/images/logo/logo_arthrex.png"
+  # This configuration is recommended for Android 12 and newer devices.
+  android_12:
+    image: "assets/images/logo/logo_arthrex.png"
+    icon_background_color: "#ffffff"
+
+# ----------------- App icon configuration -----------------
+# This section configures the image that appears on the user's home screen.
 flutter_launcher_icons:
   android: true
   ios: true

@@ -253,7 +253,6 @@ class _PlanScreenState extends State<PlanScreen> {
   Widget build(BuildContext context) {
     // The `build` method describes the UI.
     return Scaffold(
-      appBar: AppBar(title: const Text('Building Plan')), // Defines the app bar with a title.
       body: _isLoading
           ? const Center(child: CircularProgressIndicator()) // If loading, shows a loading indicator.
           : Padding(

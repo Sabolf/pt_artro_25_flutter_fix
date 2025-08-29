@@ -53,7 +53,22 @@ class _ProgramScreenState extends State<ProgramScreen> {
 
           // Add day info to each session
           for (var i = 0; i < dayTabs.length; i++) {
+            var tmpDate = "";
+            if (i == 0){
+              tmpDate = "15.10.25";
+            }
+            else if(i ==1){
+              tmpDate = "16.10.25";
+            }
+            else if(i ==2){
+              tmpDate = "17.10.25";
+            }
+            else{
+              tmpDate = "Unknown Day";
+            }
+
             for (var session in dayTabs[i]) {
+
               session['day'] = i + 1; // inject day number
               
               // Use the language-specific place fields directly from the session
@@ -94,6 +109,7 @@ class _ProgramScreenState extends State<ProgramScreen> {
                       builder: (context) => DayDetailScreen(
                         dayRoomAmount: dayRoomAmounts[i],
                         dayInformation: dayTabs[i],
+                        date: tmpDate
                       ),
                     ),
                   );

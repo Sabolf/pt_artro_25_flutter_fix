@@ -10,12 +10,14 @@ class DayDetailScreen extends StatefulWidget { // Defines a StatefulWidget, a wi
   // A final variable that determines the number of rooms, used to create the correct number of buttons and pages.
   // The length of this list dictates the count of rooms and the "All" tab.
   final dynamic dayRoomAmount; // A final field to receive the number of available rooms.
+  final dynamic date;
 
   // The constructor requires the day's information and room count to be passed in.
   const DayDetailScreen({ // The constructor for the DayDetailScreen widget.
     super.key, // Passes the key to the parent class.
     required this.dayRoomAmount, // Requires the dayRoomAmount to be provided.
     required this.dayInformation, // Requires the dayInformation to be provided.
+    required this.date
   });
 
   @override // Indicates that the following method overrides a method from the parent class.
@@ -118,7 +120,7 @@ class _DayDetailScreenState extends State<DayDetailScreen> { // The private Stat
     // The main layout of the screen is a Scaffold.
     return Scaffold( // Returns a Scaffold, providing a standard screen layout.
       // The AppBar provides the title for the screen.
-      appBar: AppBar(title: Text(locData.day_detail)), // Sets the app bar with a localized title.
+      appBar: AppBar(title: Text("${locData.day_detail} ${widget.date}")), // Sets the app bar with a localized title.
       // A Column arranges its children vertically.
       body: Column( // Lays out its children in a vertical column.
         children: [ // The list of widgets inside the Column.

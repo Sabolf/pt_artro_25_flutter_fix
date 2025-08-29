@@ -361,4 +361,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get enter_your_question => 'Enter you question here...';
+
+  @override
+  String get sponsored_sesh => 'Sponsored Lecture';
 }

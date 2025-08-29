@@ -112,6 +112,7 @@
     "submit_attendance": "Submit Attendance",
     "consent_header": "Consent For Attendance",
     "recorded": "I consent to have my attendance recorded for this session.",
-    "enter_your_question": "Enter you question here..."
+    "enter_your_question": "Enter you question here...",
+    "sponsored_sesh" : "Sponsored Lecture"
     
 }

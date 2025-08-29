@@ -112,5 +112,6 @@
     "submit_attendance" : "Prześlij Obecność",
     "consent_header" : "Zgoda Na Obecność",
     "recorded" : "Wyrażam zgodę na zarejestrowanie mojej obecności na tej sesji.",
-    "enter_your_question" : "Wpisz tutaj swoje pytanie..."
+    "enter_your_question" : "Wpisz tutaj swoje pytanie...",
+    "sponsored_sesh" : "Wykład Sponsorowany"
 }
