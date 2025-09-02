@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart'; // Imports a plugin
 import 'dart:async'; // Imports the 'dart:async' library, which provides classes for working with asynchronous operations, like Streams and Futures.
 // It's needed for the StreamSubscription class, which manages the stream of beacon data.
 
-// -----------------------------------------------------------------------------
+// --------------------wow---------------------------------------------------------
 // 1) A tiny data holder class that pairs a Beacon object with a human-readable name
 // -----------------------------------------------------------------------------
 
