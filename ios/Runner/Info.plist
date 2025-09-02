@@ -31,31 +31,25 @@
             <key>NSAllowsArbitraryLoads</key>
             <true/>
         </dict>
+        
         <key>NSBluetoothAlwaysUsageDescription</key>
         <string>This app uses Bluetooth to detect nearby beacons.</string>
         <key>NSBluetoothPeripheralUsageDescription</key>
         <string>This app requires Bluetooth access to scan for and connect to beacons.</string>
-        <key>NSCameraUsageDescription</key>
-        <string>We need camera access to scan QR codes.</string>
         <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
         <string>This app needs your location to detect nearby beacons when in use and in the background.</string>
         <key>NSLocationAlwaysUsageDescription</key>
         <string>This app needs your location to detect nearby beacons even in the background.</string>
         <key>NSLocationWhenInUseUsageDescription</key>
         <string>This app needs your location to detect nearby beacons.</string>
+
+        <key>NSCameraUsageDescription</key>
+        <string>We need camera access to scan QR codes.</string>
         <key>NSMicrophoneUsageDescription</key>
         <string>We need microphone access for scanning with audio.</string>
         <key>NSPhotoLibraryUsageDescription</key>
         <string>We need photo library access to save and load images.</string>
-
-		<!-- PASTE THE TWO NEW LINES RIGHT HERE -->
-    <key>NSBluetoothAlwaysUsageDescription</key>
-    <string>This app needs Bluetooth to find and connect to devices.</string>
-    <key>NSBluetoothPeripheralUsageDescription</key>
-    <string>This app needs Bluetooth to find and connect to devices.</string>
-    <!-- END OF NEW LINES -->
-
-
+        
         <key>UIApplicationSupportsIndirectInputEvents</key>
         <true/>
         <key>UIBackgroundModes</key>
