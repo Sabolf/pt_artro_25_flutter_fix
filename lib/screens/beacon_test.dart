@@ -34,9 +34,12 @@ class _BeaconTestState extends State<BeaconTest> {
     // Request permissions
     bool granted = false;
     if (Platform.isIOS) {
-      final bt = await Permission.bluetooth.request();
-      final loc = await Permission.locationWhenInUse.request();
-      granted = bt.isGranted && loc.isGranted;
+      granted = await Permission.locationWhenInUse.status.isGranted;
+      //final bt = await Permission.bluetooth.request();
+      if (!granted) {
+        final loc = await Permission.locationWhenInUse.request();
+        granted =  loc.isGranted;
+      }
     } else if (Platform.isAndroid) {
       final btScan = await Permission.bluetoothScan.request();
       final btConnect = await Permission.bluetoothConnect.request();
